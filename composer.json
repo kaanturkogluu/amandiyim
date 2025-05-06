@@ -1,0 +1,6 @@
+{
+    "require": {
+        "predis/predis": "^2.2",
+        "google/apiclient": "^2.18"
+    }
+}
