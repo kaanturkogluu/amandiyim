@@ -1,6 +1,7 @@
 {
     "require": {
         "predis/predis": "^2.2",
-        "google/apiclient": "^2.18"
+        "google/apiclient": "^2.18",
+        "ralouphie/getallheaders": "^3.0"
     }
 }

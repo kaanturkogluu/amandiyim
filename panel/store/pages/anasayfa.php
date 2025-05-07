@@ -3,22 +3,29 @@
 
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../../../classes/Campaigns.php';
+require_once __DIR__ . '/../../../classes/CampaignsStatics.php';
 require_once __DIR__ . '/../../../classes/Credits.php';
 
 
 $campaigns = new Campaigns();
-
-$sayi = $campaigns->count("WHERE isConfirmed=1");
+$istatsitik = new CampaignsStatics();
+$magazaistatistik = $istatsitik->getAllStatistics();
+$sayi = $campaigns->count("WHERE isConfirmed=1 AND store_id=".$session->getUserId());
  
+
 
 $page = 1 ; 
 $limit = 3;
-$aktifkampanyalar = $campaigns->getActiveCampaignsWithPage($page,$limit);
+$aktifkampanyalar = $campaigns->getActiveCampaignsWithPage($page);
 $campaingState = ['1' => 'Aktif', '0' => 'Onay Bekleniyor', '2' => 'Süresi Doldu'];
 $campaingStateColor = ['1' => 'active', '0' => 'pending', '2' => 'expired'];
+ 
 
-$credit = new Credist();
-$credits = $credit->getLimitedData(10);
+$credit = new Credits();
+$creditsdata = $credit->getLimitedData(10);
+ 
+
+
 $creditsStates = [
     'loading' => [
         'class' => 'positive',
@@ -37,9 +44,11 @@ $creditsStates = [
     ]
 ];
 
-
+ 
  
 ?>
+
+
 
 <div class="store-content">
     <div class="content-header">
@@ -92,7 +101,7 @@ $creditsStates = [
             </div>
             <div class="stat-info">
                 <h3>Toplam Görüntülenme</h3>
-                <p class="stat-value">12,450</p>
+                <p class="stat-value"><?=number_format($magazaistatistik['total_view']) ?? 0 ?></p>
                 <!-- <p class="stat-change positive">
                     <i class="fas fa-arrow-up"></i> %15 artış
                 </p> -->
@@ -104,7 +113,7 @@ $creditsStates = [
             </div>
             <div class="stat-info">
                 <h3>Farklı Cihaz Görüntülenme</h3>
-                <p class="stat-value">8,250</p>
+                <p class="stat-value"><?=number_format($magazaistatistik['total_difrent_views']) ?? 0 ?></p>
                 <!-- <p class="stat-change positive">
                     <i class="fas fa-arrow-up"></i> %12 artış
                 </p> -->
@@ -208,8 +217,8 @@ if($aktifkampanyalar['data']){
                 </thead>
                 <tbody>
                     <?php 
-                    if($credits){
-                    foreach($credits as $a){
+                    if($creditsdata){
+                    foreach($creditsdata as $a){
  
 ?>
 

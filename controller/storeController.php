@@ -24,8 +24,9 @@ $response = [
 if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
     // CSRF token kontrolü
-    if ($csrf->validatePostToken()) {
+    if (!$csrf->validateToken($_POST['_token'])) {
         $response['message'] = 'Güvenlik doğrulaması başarısız!';
+        $response['data']=$_POST;
         echo json_encode($response);
         exit;
     }
@@ -44,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 $storeData = $_POST;
 
                 unset($storeData['action']);
+              
                 unset($storeData['_token']);
                 $password = $storeData['store_owner_password'];
                 $storeData['store_owner_password'] = password_hash($password, PASSWORD_DEFAULT);

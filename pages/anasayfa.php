@@ -8,6 +8,7 @@ require_once __DIR__ . "/../classes/Categories.php";
 $campaingCategories = new Categories();
 $campaingCategories = $campaingCategories->all(); 
  
+ 
 ?>
 <section class="hero">
     <div class="container">
@@ -134,7 +135,7 @@ const limit = 12;
 let isLoading = false;
 let allLoaded = false;
 let searchForLastCampaign = false;
-let lastId = <?=$_SESSION['last_campaign_id']?>;
+let lastId = <?php echo isset($_SESSION['last_campaign_id']) ? json_encode($_SESSION['last_campaign_id']) : 'null'; ?>;
 
 function createCampaignCard(campaign) {
     let inspan = '';
@@ -162,7 +163,7 @@ function createCampaignCard(campaign) {
             src="${campaign.campaign_image || 'https://static9.depositphotos.com/1669785/1150/i/450/depositphotos_11506024-stock-photo-package.jpg'}" 
             alt="Kampanya" 
             class="campaign-card-img"
-            onerror="this.onerror=null;this.src='https://www.tunaliyapi.com.tr/wp-content/uploads/2018/01/Tunal%C4%B1-Yap%C4%B1-Kampanya.jpg';"
+            onerror="this.onerror=null;this.src='https://startiks.com/upload/367620ekle12.jpg';"
         >
         <div class="campaign-card-content">
             <h3 class="campaign-card-title">${campaign.campaign_title || ''}</h3>
@@ -197,6 +198,7 @@ function loadCampaigns() {
     fetch(`<?=Helper::baseUrl()?>/api/getCampaignApi.php?offset=${offset}&limit=${limit}`)
         .then(res => res.json())
         .then(data => {
+          
             if (Array.isArray(data) && data.length > 0) {
                 data.forEach(campaign => {
                     campaignsGrid.insertAdjacentHTML('beforeend', createCampaignCard(campaign));

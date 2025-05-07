@@ -212,6 +212,10 @@ $stores = $stores['data'];
                         <textarea name="store_adress" required></textarea>
                     </div>
                     <div class="form-group">
+                        <label>Açık Adres</label>
+                        <textarea name="local_adress" id=""></textarea>
+                    </div>
+                    <div class="form-group">
                         <label>Konum (Enlem, Boylam)</label>
                         <div class="location-input-group">
                             <input type="text" name="store_location" id="store_location"
@@ -324,6 +328,11 @@ $stores = $stores['data'];
                         <textarea name="update_store_adress" required></textarea>
                     </div>
                     <div class="form-group">
+                        <label>Açık Adres</label>
+                        <textarea name="update_local_adress" id=""></textarea>
+                    </div>
+
+                    <div class="form-group">
                         <label>Konum (Enlem, Boylam)</label>
                         <div class="location-input-group">
                             <input type="text" name="update_store_location" id="update_store_location"
@@ -359,7 +368,7 @@ $stores = $stores['data'];
                     <h3>Diğer Ayarlar</h3>
                     <div class="form-group">
                         <label>Başlangıç Kredisi</label>
-                        <input type="number" name="update_store_credits" value="10000" required>
+                        <input type="number" name="update_store_credits" value="1000" required>
                     </div>
                     <div class="form-group">
                         <label>Durum</label>
@@ -707,6 +716,7 @@ $stores = $stores['data'];
             formData.delete('logo'); // Orijinal logoyu çıkar
             formData.append('logo', resizedBlob, 'resized_logo.jpg'); // Yeniden boyutlandırılmış halini ekle
         }
+        formData.append('_token', '<?= $csrf->getToken() ?>')
 
         try {
             const response = await fetch('/../../../controller/storeController.php', {
@@ -728,6 +738,7 @@ $stores = $stores['data'];
 
             if (response.ok && result.success) {
                 alert('Mağaza başarıyla eklendi');
+                window.location.reload();
             } else {
                 console.warn("API yanıtı:", result);
                 alert(result.message || "Bir hata oluştu.");
@@ -823,6 +834,7 @@ $stores = $stores['data'];
         modalContent.querySelector('textarea[name="update_store_adress"]').value = storeData.store_adress;
         modalContent.querySelector('input[name="update_store_credits"]').value = storeData.store_credits;
         modalContent.querySelector('select[name="update_store_statu"]').value = storeData.store_statu;
+        modalContent.querySelector('textarea[name="update_local_adress"]').value = storeData.local_adress;
         modalContent.querySelector('img[id="update_store_logo_preview"]').src = "<?= Helper::upolads('images/stores_logos/') ?>" + storeData.store_logo;
         modalContent.querySelector('img[id="update_store_main_image_preview"]').src = "<?= Helper::upolads('images/store_images/') ?>" + storeData.store_main_image;
 
@@ -856,7 +868,7 @@ $stores = $stores['data'];
             formData.append('update_store_main_image', resizedMainImage, 'resized_main_image.jpg');
         }
 
-     
+
 
         try {
             const response = await fetch('/../../../controller/storeController.php', {

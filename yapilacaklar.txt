@@ -1,0 +1,2 @@
+istatistikler 24 saatlik periyot ile cron joba eklenecek - kodlar hazır
+kampanya görüntlenmlerin store_id eklenecek 

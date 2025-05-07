@@ -4,6 +4,8 @@ $current_page = 'stores';
 <?php
 
 include __DIR__ . '/../includes/navbar.php';
+
+require_once __DIR__."/../classes/Stores.php";
 ?>
 <div class="stores-page">
     <div class="container">
@@ -25,38 +27,8 @@ include __DIR__ . '/../includes/navbar.php';
         </div>
 
         <!-- Mağaza Listesi -->
-        <div class="stores-grid">
-            <!-- Örnek Mağaza Kartı -->
-            <div class="store-card" onclick="window.location.href='magaza-detay.php?id=1'">
-                <div class="store-image">
-                    <img src="https://endecormob.com/tema/genel/uploads/urunler/smaller-2021-02-18T11_23_11.871Z.jpeg"
-                        alt="Mağaza Adı">
-                    <div class="store-status active">Aktif</div>
-                </div>
-                <div class="store-info">
-                    <div class="store-header">
-                        <h2>Örnek Mağaza</h2>
-                    </div>
-                    <div class="store-owner">
-                        <i class="fas fa-user"></i>
-                        <span>Ahmet Yılmaz</span>
-                    </div>
-                    <div class="store-location">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span>Dörtyol Merkez, Hatay</span>
-                    </div>
-                    <div class="store-location">
-                        <i class="fas fa-clock"></i>
-                        <span>09:00 - 18:00</span>
-                    </div>
-                    <div class="store-preview" style="display: flex; justify-content: space-between;">
-                        <span class="campaign-count">2 Aktif Kampanya</span>
-                        <span class="campaign-detail"> <a href="#"
-                                style="display: flex; justify-content: space-evenly; align-items: center;"> İncele <i
-                                    class="fas fa-arrow-right"></i> </a> </span>
-                    </div>
-                </div>
-            </div>
+        <div class="stores-grid" id="storesGrid">
+            <!-- Mağazalar buraya JS ile eklenecek -->
         </div>
     </div>
 </div>
@@ -239,3 +211,115 @@ include __DIR__ . '/../includes/navbar.php';
         }
     }
 </style>
+<script>
+let currentPage = 1;
+let isLoading = false;
+let lastPage = false;
+let filterType = 'all'; // 'all' veya 'active'
+
+function isStoreOpen(workTime) {
+    if (!workTime) return false;
+    // Örn: "09:00 - 18:00"
+    const match = workTime.match(/(\\d{2}):(\\d{2})\\s*-\\s*(\\d{2}):(\\d{2})/);
+    if (!match) return false;
+    const now = new Date();
+    const open = new Date();
+    open.setHours(parseInt(match[1]), parseInt(match[2]), 0, 0);
+    const close = new Date();
+    close.setHours(parseInt(match[3]), parseInt(match[4]), 0, 0);
+
+    // Geceye sarkan durumlar için (örn: 22:00 - 02:00)
+    if (close <= open) {
+        if (now >= open) return true;
+        if (now <= close) return true;
+        return false;
+    }
+    return now >= open && now <= close;
+}
+
+function createStoreCard(store) {
+    return `
+    <div class="store-card" onclick="window.location.href='magaza-detay.php?id=${store.id}'">
+        <div class="store-image">
+            <img src="<?=Helper::baseUrl(). '/uploads/images/store_images/'?>${store.store_main_image || 'https://img.freepik.com/free-vector/shop-with-sign-we-are-open_52683-38687.jpg'}" alt="${store.store_name}">
+            <div class="store-status ${isStoreOpen(store.work_time) ? 'active' : ''}">${isStoreOpen(store.work_time) ? 'Açık' : 'Kapalı'}</div>
+        </div>
+        <div class="store-info">
+            <div class="store-header">
+                <h2>${store.store_name}</h2>
+            </div>
+            <div class="store-owner">
+                <i class="fas fa-user"></i>
+                <span>${store.store_owner_name || ''}</span>
+            </div>
+            <div class="store-location">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>${store.store_adress || ''}</span>
+            </div>
+            <div class="store-location">
+                <i class="fas fa-clock"></i>
+                <span>${store.work_time || '09:00 - 18:00'}</span>
+            </div>
+            <div class="store-preview" style="display: flex; justify-content: space-between;">
+                <span class="campaign-count">${store.active_campaign_count || 0} Aktif Kampanya</span>
+                <span class="campaign-detail"> <a href="magaza-detay.php?id=${store.id}" style="display: flex; justify-content: space-evenly; align-items: center;"> İncele <i class="fas fa-arrow-right"></i> </a> </span>
+            </div>
+        </div>
+    </div>
+    `;
+}
+
+function loadStores() {
+    if (isLoading || lastPage) return;
+    isLoading = true;
+    document.getElementById('storesGrid').insertAdjacentHTML('beforeend', '<div id="loadingSpinner" style="text-align:center;padding:20px;">Yükleniyor...</div>');
+    fetch(`<?=Helper::baseUrl()?>/api/getStores.php?page=${currentPage}&type=${filterType}`)
+        .then(res => {
+            console.log('Ham yanıt:', res);
+            return res.json();
+        })
+        .then(data => {
+            console.log('Çözümlenmiş JSON:', data);
+            document.getElementById('loadingSpinner').remove();
+            if (data.data && data.data.length > 0) {
+                data.data.forEach(store => {
+                    document.getElementById('storesGrid').insertAdjacentHTML('beforeend', createStoreCard(store));
+                });
+                currentPage++;
+                if (data.data.length < 16) lastPage = true;
+            } else {
+                lastPage = true;
+            }
+        })
+        .catch(() => {
+            document.getElementById('loadingSpinner').remove();
+        })
+        .finally(() => {
+            isLoading = false;
+        });
+}
+
+// İlk yükleme
+loadStores();
+
+// Infinite scroll
+window.addEventListener('scroll', function() {
+    if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 200)) {
+        loadStores();
+    }
+});
+
+// Filtre butonları
+const filterBtns = document.querySelectorAll('.filter-buttons .btn');
+filterBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        filterType = this.textContent.includes('Aktif') ? 'active' : 'all';
+        currentPage = 1;
+        lastPage = false;
+        document.getElementById('storesGrid').innerHTML = '';
+        loadStores();
+    });
+});
+</script>

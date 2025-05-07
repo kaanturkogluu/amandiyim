@@ -11,14 +11,14 @@ $campaignsObj = new Campaigns();
 $campaingsViewObj = new CampaingsView();
 $storesObj = new Stores();
 // Görüntülenme sayısını artır
-$campaingsViewObj->updateCampaignView($campaignId);
 
+ 
 
 // Kampanya detaylarını getir
 $campaign = $campaignsObj->find($campaignId);
 $store = $storesObj->find($campaign['store_id']);
 
-
+ 
 // Kampanya bulunamadıysa veya aktif değilse 404 sayfasına yönlendir
 
 
@@ -27,10 +27,11 @@ $store = $storesObj->find($campaign['store_id']);
 
 // Son bakılan kampanya id'sini cookie'ye yaz
 if (isset($campaignId) && $campaignId > 0) {
-    $_SESSION['last_campaign_id']= $campaignId; // 7 gün sakla
+    $_SESSION['last_campaign_id'] = $campaignId; // 7 gün sakla
 }
 ?>
 
+ 
 <div class="campaign-detail-page">
     <!-- Kampanya Banner -->
     <div class="campaign-banner">
@@ -148,9 +149,9 @@ if (isset($campaignId) && $campaignId > 0) {
             <!-- Kampanya Detayları -->
             <div class="campaign-details">
                 <?php if ($campaign['campaign_disscount_off']): ?>
-                <div class="discount-badge">
-                    %<?= (int) $campaign['campaign_disscount_off'] ?> İndirim
-                </div>
+                    <div class="discount-badge">
+                        %<?= (int) $campaign['campaign_disscount_off'] ?> İndirim
+                    </div>
                 <?php endif; ?>
 
                 <div class="campaign-description">
@@ -161,12 +162,12 @@ if (isset($campaignId) && $campaignId > 0) {
                 </div>
 
                 <?php if ($campaign['campaign_min_purchase']): ?>
-                <div class="purchase-info">
-                    <i class="fas fa-info-circle"></i>
-                    Minimum <?= number_format((int)$campaign['campaign_min_purchase'], 2, ',', '.') ?> TL ve üzeri
-                    alışverişlerde
-                    geçerlidir.
-                </div>
+                    <div class="purchase-info">
+                        <i class="fas fa-info-circle"></i>
+                        Minimum <?= number_format((int) $campaign['campaign_min_purchase'], 2, ',', '.') ?> TL ve üzeri
+                        alışverişlerde
+                        geçerlidir.
+                    </div>
                 <?php endif; ?>
 
                 <!-- Kampanya Koşulları -->
@@ -176,11 +177,11 @@ if (isset($campaignId) && $campaignId > 0) {
                         <li>Kampanya <?= date('d.m.Y H:i', strtotime($campaign['campaign_end_time'])) ?> tarihine kadar
                             geçerlidir.</li>
                         <?php if ($campaign['campaign_type'] == 'discount'): ?>
-                        <li>İndirim oranı seçili ürünlerde geçerlidir.</li>
+                            <li>İndirim oranı seçili ürünlerde geçerlidir.</li>
                         <?php elseif ($campaign['campaign_type'] == 'bogo'): ?>
-                        <li>Bir ürün alana bir ürün bedava kampanyası seçili ürünlerde geçerlidir.</li>
+                            <li>Bir ürün alana bir ürün bedava kampanyası seçili ürünlerde geçerlidir.</li>
                         <?php elseif ($campaign['campaign_type'] == 'bundle'): ?>
-                        <li>Paket indirimi seçili ürün gruplarında geçerlidir.</li>
+                            <li>Paket indirimi seçili ürün gruplarında geçerlidir.</li>
                         <?php endif; ?>
                         <li>Diğer kampanyalarla birleştirilemez.</li>
                         <li>Kampanya stoklarla sınırlıdır.</li>
@@ -190,16 +191,17 @@ if (isset($campaignId) && $campaignId > 0) {
                 <!-- Kampanyaya Katıl Butonu -->
                 <div class="campaign-action">
                     <?php
-                    $lastCampaignId = isset($_COOKIE['last_campaign_id']) ? (int)$_COOKIE['last_campaign_id'] : 0;
+                    $lastCampaignId = isset($_COOKIE['last_campaign_id']) ? (int) $_COOKIE['last_campaign_id'] : 0;
                     $backUrl = 'anasayfa.php#campaigns';
                     if ($lastCampaignId && $lastCampaignId !== $campaignId) {
                         $backUrl = 'campaign-detail.php?id=' . $lastCampaignId . '&store=' . urlencode($_GET['store'] ?? '');
                     }
                     ?>
-                    <a href="<?=$backUrl?>" class="btn-shop-now" style="background:#eee;color:#333;margin-right:12px;">
+                    <a href="<?= $backUrl ?>" class="btn-shop-now"
+                        style="background:#eee;color:#333;margin-right:12px;">
                         <i class="fas fa-arrow-left"></i> Kampanyalara Geri Dön
                     </a>
-                    <a href="magaza-detay.php?id=<?=$_GET['store']?>" class="btn-shop-now">
+                    <a href="magaza-detay.php?id=<?= $_GET['store'] ?>" class="btn-shop-now">
                         Mağazaya Git
                         <i class="fas fa-arrow-right"></i>
                     </a>
@@ -210,775 +212,810 @@ if (isset($campaignId) && $campaignId > 0) {
 </div>
 
 <style>
-.campaign-banner {
-    position: relative;
-    width: 100%;
-    height: 500px;
-    overflow: hidden;
-    background: #000;
-    margin-top: 80px;
-    /* Navbar yüksekliği kadar margin */
-}
-
-.banner-image {
-    width: 100%;
-    height: 100%;
-    position: relative;
-}
-
-.banner-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0.9;
-}
-
-/* Overlay */
-.banner-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg,
-            rgba(88, 86, 217, 0.85) 0%,
-            rgba(255, 45, 83, 0.75) 100%);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    padding: 30px 0;
-}
-
-.store-header {
-    width: 100%;
-    padding: 40px;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-.store-header-content {
-    display: flex;
-    align-items: flex-start;
-    gap: 50px;
-    position: relative;
-}
-
-.store-image {
-    position: relative;
-    flex-shrink: 0;
-    padding: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 25px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-    transition: all 0.3s ease;
-}
-
-.store-image:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-}
-
-.store-image img {
-    width: 220px;
-    height: 220px;
-    border-radius: 20px;
-    object-fit: cover;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    transition: all 0.3s ease;
-}
-
-.store-image:hover img {
-    transform: scale(1.02);
-    border-color: rgba(255, 255, 255, 0.5);
-}
-
-.store-badge {
-    position: absolute;
-    bottom: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: white;
-    padding: 10px 25px;
-    border-radius: 30px;
-    font-size: 14px;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    z-index: 1;
-}
-
-.store-badge i {
-    font-size: 16px;
-}
-
-.store-badge:hover {
-    background: rgba(255, 255, 255, 0.25);
-    transform: translateX(-50%) translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-
-.store-info {
-    flex: 1;
-    max-width: 600px;
-    /* Bilgilerin çok fazla genişlememesi için */
-    padding: 10px 0;
-}
-
-.store-breadcrumb {
-    display: flex;
-    align-items: center;
-
-    gap: 10px;
-    margin-bottom: 15px;
-    font-size: 14px;
-    margin: 5px;
-
-}
-
-
-.store-breadcrumb a {
-    color: rgba(255, 255, 255, 0.9);
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.store-breadcrumb a:hover {
-    color: #fff;
-}
-
-.store-breadcrumb .separator {
-    color: rgba(255, 255, 255, 0.6);
-}
-
-.store-breadcrumb .current {
-    color: #fff;
-}
-
-.store-name {
-    font-size: 36px;
-    font-weight: 700;
-    margin: 0 0 15px 0;
-    color: #fff;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    letter-spacing: -0.5px;
-}
-
-.store-address {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 0 0 20px 0;
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 16px;
-    padding: 10px 15px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-}
-
-.store-meta {
-    display: flex;
-    gap: 25px;
-    margin-bottom: 25px;
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-}
-
-.meta-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 15px;
-    transition: all 0.3s ease;
-}
-
-.meta-item:hover {
-    transform: translateY(-2px);
-}
-
-.meta-item i {
-    font-size: 18px;
-    color: rgba(255, 255, 255, 0.8);
-}
-
-.meta-item a {
-    color: inherit;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.meta-item a:hover {
-    color: #fff;
-}
-
-.store-actions {
-    display: flex;
-    gap: 15px;
-}
-
-.btn-local-address {
-
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 30px;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.15);
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-}
-
-.btn-location {
-
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 30px;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.15);
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-}
-
-.btn-local-address:hover {
-    background: rgba(255, 255, 255, 0.25);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.btn-location:hover {
-    background: rgba(255, 255, 255, 0.25);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.campaign-detail-page {
-    background-color: #f8f9fa;
-    min-height: 100vh;
-}
-
-.campaign-banner {
-    width: 100%;
-    height: 400px;
-    overflow: hidden;
-    position: relative;
-    background: #000;
-}
-
-.banner-image {
-    width: 100%;
-    height: 100%;
-}
-
-.banner-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0.9;
-}
-
-.campaign-content {
-    margin-top: -50px;
-    position: relative;
-    background: #fff;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    margin-bottom: 50px;
-}
-
-.campaign-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.campaign-header h1 {
-    font-size: 32px;
-    color: #333;
-    margin-bottom: 20px;
-    font-weight: 600;
-}
-
-.campaign-timer {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 10px;
-    display: inline-block;
-}
-
-.timer-label {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 5px;
-}
-
-.timer-value {
-    font-size: 24px;
-    font-weight: 600;
-    color: #dc3545;
-}
-
-.timer-value span {
-    background: #dc3545;
-    color: #fff;
-    padding: 5px 10px;
-    border-radius: 5px;
-    margin: 0 2px;
-}
-
-.campaign-details {
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.discount-badge {
-    display: inline-block;
-    background: #dc3545;
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 25px;
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 20px;
-}
-
-.campaign-description {
-    font-size: 16px;
-    line-height: 1.8;
-    color: #555;
-    margin-bottom: 30px;
-}
-
-.purchase-info {
-    background: #e9ecef;
-    padding: 15px;
-    border-radius: 8px;
-    color: #495057;
-    font-size: 14px;
-    margin-bottom: 30px;
-}
-
-.purchase-info i {
-    color: #007bff;
-    margin-right: 5px;
-}
-
-.campaign-terms {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 30px;
-}
-
-.campaign-terms h3 {
-    font-size: 18px;
-    color: #333;
-    margin-bottom: 15px;
-}
-
-.campaign-terms ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.campaign-terms li {
-    position: relative;
-    padding-left: 20px;
-    margin-bottom: 10px;
-    color: #666;
-}
-
-.campaign-terms li:before {
-    content: "•";
-    color: #dc3545;
-    position: absolute;
-    left: 0;
-    font-size: 20px;
-    line-height: 1;
-}
-
-.campaign-action {
-    text-align: center;
-    margin-top: 40px;
-}
-
-.btn-shop-now {
-    display: inline-flex;
-    align-items: center;
-    background: #dc3545;
-    color: #fff;
-    padding: 15px 30px;
-    border-radius: 30px;
-    font-size: 18px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
-
-.btn-shop-now:hover {
-    background: #c82333;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
-}
-
-.btn-shop-now i {
-    margin-left: 10px;
-    transition: transform 0.3s ease;
-}
-
-.btn-shop-now:hover i {
-    transform: translateX(5px);
-}
-
-.store-map {
-    display: none;
-}
-
-#map,
-.btn-directions {
-    display: none;
-}
-
-@media (max-width: 1200px) {
-    .store-header-content {
-        flex-direction: column;
-        align-items: center;
-    }
-
-
-
-    .store-breadcrumb {
-        justify-content: center;
-    }
-
-    .store-info {
-        width: 100%;
-        max-width: none;
-        text-align: center;
-    }
-}
-
-@media (max-width: 768px) {
     .campaign-banner {
-        height: auto;
-        min-height: 600px;
-        margin-top: 60px;
-        /* Mobilde navbar daha alçak olabilir */
-    }
-
-    .banner-overlay {
-        padding: 20px 0;
-    }
-
-    .store-header {
-        padding: 25px;
-    }
-
-    .campaign-content {
-        margin-top: -30px;
-        padding: 20px;
-    }
-
-    .campaign-header h1 {
-        font-size: 24px;
-    }
-
-    .timer-value {
-        font-size: 20px;
-    }
-
-    .discount-badge {
-        font-size: 16px;
-    }
-
-    .btn-shop-now {
+        position: relative;
         width: 100%;
-        justify-content: center;
+        height: 500px;
+        overflow: hidden;
+        background: #000;
+        margin-top: 80px;
+        /* Navbar yüksekliği kadar margin */
+    }
+
+    .banner-image {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+
+    .banner-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.9;
+    }
+
+    /* Overlay */
+    .banner-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg,
+                rgba(88, 86, 217, 0.85) 0%,
+                rgba(255, 45, 83, 0.75) 100%);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        padding: 30px 0;
     }
 
     .store-header {
-        padding: 20px;
+        width: 100%;
+        padding: 40px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     }
 
     .store-header-content {
-        flex-direction: column;
-        text-align: center;
-        gap: 40px;
+        display: flex;
+        align-items: flex-start;
+        gap: 50px;
+        position: relative;
     }
 
     .store-image {
-        padding: 6px;
+        position: relative;
+        flex-shrink: 0;
+        padding: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 25px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+    }
+
+    .store-image:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
     }
 
     .store-image img {
-        width: 180px;
-        height: 180px;
+        width: 220px;
+        height: 220px;
+        border-radius: 20px;
+        object-fit: cover;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
     }
 
-    .store-name {
-        font-size: 28px;
+    .store-image:hover img {
+        transform: scale(1.02);
+        border-color: rgba(255, 255, 255, 0.5);
     }
 
-    .store-meta {
-        flex-direction: column;
+    .store-badge {
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 10px 25px;
+        border-radius: 30px;
+        font-size: 14px;
+        white-space: nowrap;
+        display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        z-index: 1;
     }
 
-    .store-actions {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 10px;
-        width: 100%;
-        margin-top: 15px;
+    .store-badge i {
+        font-size: 16px;
     }
 
-    .btn-local-address,
-    .btn-location {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .store-header-content {
-        gap: 25px;
+    .store-badge:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateX(-50%) translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     }
 
     .store-info {
+        flex: 1;
+        max-width: 600px;
+        /* Bilgilerin çok fazla genişlememesi için */
+        padding: 10px 0;
+    }
+
+    .store-breadcrumb {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+        margin-bottom: 15px;
+        font-size: 14px;
+        margin: 5px;
+
+    }
+
+
+    .store-breadcrumb a {
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .store-breadcrumb a:hover {
+        color: #fff;
+    }
+
+    .store-breadcrumb .separator {
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .store-breadcrumb .current {
+        color: #fff;
+    }
+
+    .store-name {
+        font-size: 36px;
+        font-weight: 700;
+        margin: 0 0 15px 0;
+        color: #fff;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        letter-spacing: -0.5px;
+    }
+
+    .store-address {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 20px 0;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 16px;
+        padding: 10px 15px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+    }
+
+    .store-meta {
+        display: flex;
+        gap: 25px;
+        margin-bottom: 25px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .meta-item:hover {
+        transform: translateY(-2px);
+    }
+
+    .meta-item i {
+        font-size: 18px;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .meta-item a {
+        color: inherit;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .meta-item a:hover {
+        color: #fff;
+    }
+
+    .store-actions {
+        display: flex;
+        gap: 15px;
+    }
+
+    .btn-local-address {
+
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 30px;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.15);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+    }
+
+    .btn-location {
+
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 30px;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.15);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+    }
+
+    .btn-local-address:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-location:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .campaign-detail-page {
+        background-color: #f8f9fa;
+        min-height: 100vh;
+    }
+
+    .campaign-banner {
+        width: 100%;
+        height: 400px;
+        overflow: hidden;
+        position: relative;
+        background: #000;
+    }
+
+    .banner-image {
+        width: 100%;
+        height: 100%;
+    }
+
+    .banner-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.9;
+    }
+
+    .campaign-content {
+        margin-top: -50px;
+        position: relative;
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin-bottom: 50px;
+    }
+
+    .campaign-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .campaign-header h1 {
+        font-size: 32px;
+        color: #333;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    .campaign-timer {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+        display: inline-block;
+    }
+
+    .timer-label {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 5px;
+    }
+
+    .timer-value {
+        font-size: 24px;
+        font-weight: 600;
+        color: #dc3545;
+    }
+
+    .timer-value span {
+        background: #dc3545;
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 5px;
+        margin: 0 2px;
+    }
+
+    .campaign-details {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .discount-badge {
+        display: inline-block;
+        background: #dc3545;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .campaign-description {
+        font-size: 16px;
+        line-height: 1.8;
+        color: #555;
+        margin-bottom: 30px;
+    }
+
+    .purchase-info {
+        background: #e9ecef;
+        padding: 15px;
+        border-radius: 8px;
+        color: #495057;
+        font-size: 14px;
+        margin-bottom: 30px;
+    }
+
+    .purchase-info i {
+        color: #007bff;
+        margin-right: 5px;
+    }
+
+    .campaign-terms {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+
+    .campaign-terms h3 {
+        font-size: 18px;
+        color: #333;
+        margin-bottom: 15px;
+    }
+
+    .campaign-terms ul {
+        list-style: none;
         padding: 0;
+        margin: 0;
+    }
+
+    .campaign-terms li {
+        position: relative;
+        padding-left: 20px;
+        margin-bottom: 10px;
+        color: #666;
+    }
+
+    .campaign-terms li:before {
+        content: "•";
+        color: #dc3545;
+        position: absolute;
+        left: 0;
+        font-size: 20px;
+        line-height: 1;
+    }
+
+    .campaign-action {
+        text-align: center;
+        margin-top: 40px;
+    }
+
+    .btn-shop-now {
+        display: inline-flex;
+        align-items: center;
+        background: #dc3545;
+        color: #fff;
+        padding: 15px 30px;
+        border-radius: 30px;
+        font-size: 18px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-shop-now:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+    }
+
+    .btn-shop-now i {
+        margin-left: 10px;
+        transition: transform 0.3s ease;
+    }
+
+    .btn-shop-now:hover i {
+        transform: translateX(5px);
+    }
+
+    .store-map {
+        display: none;
+    }
+
+    #map,
+    .btn-directions {
+        display: none;
+    }
+
+    @media (max-width: 1200px) {
+        .store-header-content {
+            flex-direction: column;
+            align-items: center;
+        }
+
+
+
+        .store-breadcrumb {
+            justify-content: center;
+        }
+
+        .store-info {
+            width: 100%;
+            max-width: none;
+            text-align: center;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .campaign-banner {
+            height: auto;
+            min-height: 600px;
+            margin-top: 60px;
+            /* Mobilde navbar daha alçak olabilir */
+        }
+
+        .banner-overlay {
+            padding: 20px 0;
+        }
+
+        .store-header {
+            padding: 25px;
+        }
+
+        .campaign-content {
+            margin-top: -30px;
+            padding: 20px;
+        }
+
+        .campaign-header h1 {
+            font-size: 24px;
+        }
+
+        .timer-value {
+            font-size: 20px;
+        }
+
+        .discount-badge {
+            font-size: 16px;
+        }
+
+        .btn-shop-now {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .store-header {
+            padding: 20px;
+        }
+
+        .store-header-content {
+            flex-direction: column;
+            text-align: center;
+            gap: 40px;
+        }
+
+        .store-image {
+            padding: 6px;
+        }
+
+        .store-image img {
+            width: 180px;
+            height: 180px;
+        }
+
+        .store-name {
+            font-size: 28px;
+        }
+
+        .store-meta {
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .store-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .btn-local-address,
+        .btn-location {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .store-header-content {
+            gap: 25px;
+        }
+
+        .store-info {
+            padding: 0;
+        }
+
+        .modal-content {
+            width: 95%;
+            margin: 20px;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+        }
+
+        #map {
+            height: 250px;
+        }
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .store-image img {
+            width: 180px;
+            height: 180px;
+        }
+    }
+
+    /* Local Address Modal Styles */
+    .local-address-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .local-address-modal.active {
+        display: flex;
+        opacity: 1;
+        align-items: center;
+        justify-content: center;
     }
 
     .modal-content {
-        width: 95%;
-        margin: 20px;
+        background: white;
+        width: 90%;
+        max-width: 600px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transform: translateY(-20px);
+        transition: transform 0.3s ease;
+    }
+
+    .local-address-modal.active .modal-content {
+        transform: translateY(0);
+    }
+
+    .modal-header {
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
     .modal-header h2 {
-        font-size: 20px;
+        margin: 0;
+        font-size: 24px;
+        color: #333;
     }
 
-    #map {
-        height: 250px;
+    .close-modal {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #666;
+        cursor: pointer;
+        padding: 5px;
+        transition: color 0.3s ease;
     }
-}
 
-@media (min-width: 769px) and (max-width: 1024px) {
-    .store-image img {
-        width: 180px;
-        height: 180px;
+    .close-modal:hover {
+        color: #333;
     }
-}
 
-/* Local Address Modal Styles */
-.local-address-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(5px);
-    z-index: 1000;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
+    .modal-body {
+        padding: 30px;
+    }
 
-.local-address-modal.active {
-    display: flex;
-    opacity: 1;
-    align-items: center;
-    justify-content: center;
-}
+    .address-section {
+        margin-bottom: 30px;
+    }
 
-.modal-content {
-    background: white;
-    width: 90%;
-    max-width: 600px;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    transform: translateY(-20px);
-    transition: transform 0.3s ease;
-}
+    .address-section h3 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 18px;
+    }
 
-.local-address-modal.active .modal-content {
-    transform: translateY(0);
-}
+    .location-detail {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 10px 0;
+        font-size: 16px;
+        line-height: 1.6;
+        color: #555;
+    }
 
-.modal-header {
-    padding: 20px;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+    .landmarks {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
 
-.modal-header h2 {
-    margin: 0;
-    font-size: 24px;
-    color: #333;
-}
+    .landmarks li {
+        padding: 10px 0;
+        color: #666;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
 
-.close-modal {
-    background: none;
-    border: none;
-    font-size: 24px;
-    color: #666;
-    cursor: pointer;
-    padding: 5px;
-    transition: color 0.3s ease;
-}
-
-.close-modal:hover {
-    color: #333;
-}
-
-.modal-body {
-    padding: 30px;
-}
-
-.address-section {
-    margin-bottom: 30px;
-}
-
-.address-section h3 {
-    color: #333;
-    margin-bottom: 15px;
-    font-size: 18px;
-}
-
-.location-detail {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 10px;
-    margin: 10px 0;
-    font-size: 16px;
-    line-height: 1.6;
-    color: #555;
-}
-
-.landmarks {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.landmarks li {
-    padding: 10px 0;
-    color: #666;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.landmarks li i {
-    color: #dc3545;
-    width: 20px;
-}
+    .landmarks li i {
+        color: #dc3545;
+        width: 20px;
+    }
 </style>
 
 <script>
-// Geri sayım fonksiyonu
-function updateTimer(endDate) {
-    const now = new Date().getTime();
-    const end = new Date(endDate).getTime();
-    const distance = end - now;
+    // Geri sayım fonksiyonu
+    function updateTimer(endDate) {
+        const now = new Date().getTime();
+        const end = new Date(endDate).getTime();
+        const distance = end - now;
 
-    if (distance < 0) {
-        document.querySelector('.campaign-timer').innerHTML = '<div class="timer-label">Kampanya Sona Erdi</div>';
-        return;
+        if (distance < 0) {
+            document.querySelector('.campaign-timer').innerHTML = '<div class="timer-label">Kampanya Sona Erdi</div>';
+            return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        document.querySelector('.timer-value .days').textContent = String(days).padStart(2, '0');
+        document.querySelector('.timer-value .hours').textContent = String(hours).padStart(2, '0');
+        document.querySelector('.timer-value .minutes').textContent = String(minutes).padStart(2, '0');
+        document.querySelector('.timer-value .seconds').textContent = String(seconds).padStart(2, '0');
     }
 
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    // Sayfa yüklendiğinde geri sayımı başlat
+    document.addEventListener('DOMContentLoaded', function () {
+        const timerElement = document.querySelector('.campaign-timer');
+        const endDate = timerElement.dataset.end;
 
-    document.querySelector('.timer-value .days').textContent = String(days).padStart(2, '0');
-    document.querySelector('.timer-value .hours').textContent = String(hours).padStart(2, '0');
-    document.querySelector('.timer-value .minutes').textContent = String(minutes).padStart(2, '0');
-    document.querySelector('.timer-value .seconds').textContent = String(seconds).padStart(2, '0');
-}
+        updateTimer(endDate);
+        setInterval(() => updateTimer(endDate), 1000);
 
-// Sayfa yüklendiğinde geri sayımı başlat
-document.addEventListener('DOMContentLoaded', function() {
-    const timerElement = document.querySelector('.campaign-timer');
-    const endDate = timerElement.dataset.end;
-
-    updateTimer(endDate);
-    setInterval(() => updateTimer(endDate), 1000);
-});
-
-function openGoogleMaps(address) {
-    const encodedAddress = encodeURIComponent(address);
-    window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
-}
-
-function contactStore() {
-    window.location.href = '/contact';
-}
-
-// Modal functions
-function openLocalAddressModal() {
-    const modal = document.getElementById('localAddressModal');
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeLocalAddressModal() {
-    const modal = document.getElementById('localAddressModal');
-    modal.classList.remove('active');
-    document.body.style.overflow = '';
-}
-
-// Close modal when clicking outside
-document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('localAddressModal');
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            closeLocalAddressModal();
-        }
+        updateView();
     });
 
-    // Close modal with ESC key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && modal.classList.contains('active')) {
-            closeLocalAddressModal();
-        }
+    function openGoogleMaps(address) {
+        const encodedAddress = encodeURIComponent(address);
+        window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+    }
+
+    function contactStore() {
+        window.location.href = '/contact';
+    }
+
+    // Modal functions
+    function openLocalAddressModal() {
+        const modal = document.getElementById('localAddressModal');
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLocalAddressModal() {
+        const modal = document.getElementById('localAddressModal');
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // Close modal when clicking outside
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('localAddressModal');
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) {
+                closeLocalAddressModal();
+            }
+        });
+
+        // Close modal with ESC key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                closeLocalAddressModal();
+            }
+        });
     });
-});
+</script>
+
+
+<script>
+
+
+    function updateView() {
+        let store_id = "<?= $_GET['store'] ?>";
+        let campaign_id = "<?= $_GET['id'] ?>";
+        let token = "<?= $csrf->getToken() ?>"
+
+        fetch('<?= Helper::baseUrl() . '/api/updateCampaignView.php' ?>', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                'store': store_id,
+                'campaign': campaign_id,
+                '_token': token
+
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Gelen Veri:', data);
+            })
+            .catch(error => {
+                console.error('Hata:', error);
+            });
+
+
+    }
 </script>
 
 <?php

@@ -1,0 +1,6 @@
+[2025-05-07 17:16:56] İşlem Başlatıldı.
+[2025-05-07 17:16:56] İstatistikler başarıyla eklendi.
+[2025-05-07 17:16:56] İşlem Tamamlandı.
+[2025-05-07 17:17:12] İşlem Başlatıldı.
+[2025-05-07 17:17:12] İstatistikler başarıyla eklendi.
+[2025-05-07 17:17:12] İşlem Tamamlandı.

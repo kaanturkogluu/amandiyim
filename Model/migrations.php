@@ -30,7 +30,7 @@ $storeBlueprint->id()
     ->string('store_owner_name')
     ->string('work_time')->default('09:00 - 18:00')
     ->string('store_adress')
-    ->string('store_logo')
+    ->string('store_logo')->default('assets/img/store-default-icon.jpg')
     ->string('store_phone')
     ->string('store_main_image')
     ->string('store_credits')->default('10000')
@@ -53,6 +53,7 @@ $campaignsBlueprint->id()
     ->json('campaign_conditions')
     ->string('campaign_image')
     ->string('campaign_min_purchase')
+    ->integer('campaign_category')
     ->integer('isConfirmed')->default('0')
     ->enum('campaign_type', ['discount', 'bogo', 'bundle'])->default('discount')
     ->enum('campaign_status',['expired', 'active', 'suspend','waiting'])->default('waiting')
@@ -65,6 +66,7 @@ $campaignsStaticsBlueprint->id()
     ->integer('campaign_id')
     ->string('total_views', 10)->default("0")
     ->string('total_diffrent_views', 10)->default("0")
+    ->integer('store_id')
     ->foreignKey('id', 'campaigns');
 
 // Customers tablosu
@@ -98,6 +100,7 @@ $phoneVerifiedCodesBlueprint->id()
     ->foreignKey('phone_id', 'phones');
 
 
+    
  $storeCategoriesBlueprint = new Blueprint('store_categories');
  $storeCategoriesBlueprint->id()
     ->string('category_name')

@@ -2,79 +2,63 @@
 
 require_once __DIR__ . '/BaseModel.php';
 require_once __DIR__ . '/CampaingsView.php';
+require_once __DIR__ . '/Session.php';
 class CampaignsStatics extends BaseModel
 {
 
-    protected $table = 'campaign_statics';
+    protected $store_id;
+    protected $table = 'campaigns_statics';
 
 
-
-
-    public function calculateStatics($campaign_id)
+    public function __construct()
     {
-        $sql = "SELECT * FROM {$this->table} WHERE campaign_id = ?";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([$campaign_id]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        parent::__construct();
+        $session = Session::getInstance();
+        $this->store_id = $session->getUserId();
+    }
+    public function createCollective($data)
+    {
+        // Verileri 50'lik gruplara böl
+        $chunks = array_chunk($data, 50);
+
+
+
+        foreach ($chunks as $chunk) {
+            $placeholders = [];
+            $values = [];
+
+            foreach ($chunk as $d) {
+                $placeholders[] = "(?, ?, ?, ?)";
+                $values[] = $d['store_id'];
+                $values[] = $d['campaign_id'];
+                $values[] = $d['total_views'];
+                $values[] = $d['total_diffrent_views'];
+            }
+
+            $sql = "INSERT INTO {$this->table} (store_id, campaign_id, total_views, total_diffrent_views) VALUES " . implode(',', $placeholders);
+
+            $stmt = $this->db->prepare($sql);
+            $result = $stmt->execute($values);
+
+            return $result;
+        }
     }
 
-    //Görüntüleme Sayısını Hepsini Al 
-    public function getViewStatics($store_id)
+
+    public function getAllStatistics()
     {
 
-        // Storeid ile kampanyaları al
-        $sql = "SELECT id FROM campaigns WHERE store_id = ?";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([$store_id]);
-        $campaigns = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        $campaingsViewObject = new CampaingsView();
-
-        $viewsArray = array_map(function ($campaign) use ($campaingsViewObject) {
-            return $campaingsViewObject->getCampaignView($campaign['id']);
-        }, $campaigns);
-
-
-        //Toplam Görüntüleme Sayısını Al 
-        $totalViews = array_reduce($viewsArray, function ($carry, $item) {
-            return $carry + $item;
-        }, 0);
-
-        return $totalViews;
-
+  
+        $sql = "SELECT SUM(total_views) as total_view, SUM(total_diffrent_views) as total_difrent_views FROM {$this->table} WHERE store_id = :store_id";
+            $stmt = $this->db->prepare($sql);
+        $stmt->execute(['store_id' => $this->store_id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function getDifdrentIpStatics($store_id)
-    {
-        // Storeid ile kampanyaları al
-        $sql = "SELECT id FROM campaigns WHERE store_id = ?";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([$store_id]);
-        $campaigns = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        $campaingsViewObject = new CampaingsView();
-
-        $viewsArray = array_map(function ($campaign) use ($campaingsViewObject) {
-            return $campaingsViewObject->getDifferentTotalViews($campaign['id']);
-        }, $campaigns);
-
-
-        //Toplam Görüntüleme Sayısını Al 
-        $totalViews = array_reduce($viewsArray, function ($carry, $item) {
-            return $carry + $item;
-        }, 0);
-
-        return $totalViews;
-
-    }
 
 
 
 }
 
-$statick = new CampaignsStatics();
- 
-$totalIp = $statick->getDifdrentIpStatics($_SESSION['user']['id']);
- 
-echo $totalIp;
+
 ?>

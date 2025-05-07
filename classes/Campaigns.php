@@ -54,12 +54,13 @@ class Campaigns extends BaseModel
         // Sayfa numarasına göre verileri çek
         $sql = "SELECT * FROM " . $this->table . " WHERE store_id = :store_id AND isConfirmed = 1 ORDER BY id DESC LIMIT :offset, :limit";
         $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(':store_id', $this->store_id, PDO::PARAM_INT);
+        $stmt->bindParam(':store_id', $this->store_id, PDO::PARAM_INT);
 
         // Parametreleri bağla
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT); // Doğrudan sayısal değeri bağla
         $stmt->bindValue(':limit', $this->itemsPerPage, PDO::PARAM_INT); // Limit değerini bağla
 
+       
         $stmt->execute();
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

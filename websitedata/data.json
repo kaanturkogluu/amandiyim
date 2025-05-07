@@ -1,0 +1,12 @@
+[
+    {
+        "name": "data_1.json",
+        "line": 5,
+        "isCompleted": true
+    },
+    {
+        "name": "data_2.json",
+        "line": 5,
+        "isCompleted": false
+    }
+]

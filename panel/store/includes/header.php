@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../../classes/Helper.php';
 require_once __DIR__ . '/../../../classes/Session.php';
-require_once __DIR__ . '/../../../classes/CsrfToken.php';    
+require_once __DIR__ . '/../../../classes/CsrfToken.php';
 $session = Session::getInstance();
 $helper = Helper::getInstance();
 $csrf = CsrfToken::getInstance();
@@ -34,6 +34,8 @@ $csrf = CsrfToken::getInstance();
 $storeData = $_SESSION['user'];
 
 
+
+
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -51,7 +53,7 @@ $storeData = $_SESSION['user'];
         rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="<?=Helper::url('panel/store/')?>assets/css/style.css">
+    <link rel="stylesheet" href="<?= Helper::url('panel/store/') ?>assets/css/style.css">
 </head>
 
 <body>
@@ -61,10 +63,20 @@ $storeData = $_SESSION['user'];
             <button class="menu-toggle" onclick="toggleSidebar()">
                 <i class="fas fa-bars"></i>
             </button>
-            <a href="<?=Helper::storePanelView('anasayfa')?>" class="store-logo">Amandiyim</a>
+            <a href="<?= Helper::storePanelView('anasayfa') ?>" class="store-logo">Amandiyim</a>
         </div>
         <div class="store-profile">
-            <img src="assets/images/profile.jpg" alt="Profile">
+
+            <?php
+            if (!isset($storeData['store_logo']) || $storeData['store_logo'] === '') {
+                $storelogo = Helper::baseUrl() . $storeData['store_logo'];
+            } else {
+                $storelogo = Helper::baseUrl() . "/uploads/stores_logos/" . $storeData['store_logo'] . "";
+            }
+
+
+            ?>
+            <img src="<?= $storelogo ?>" alt="Profile">
             <span>Test Mağaza</span>
             <div class="store-dropdown">
                 <div class="store-dropdown-menu">
@@ -72,7 +84,7 @@ $storeData = $_SESSION['user'];
                         <i class="fas fa-cog"></i> Ayarlar
                     </a>
                     <div class="store-divider"></div>
-                    <a href="<?=Helper::controller('LogoutController')?>" class="store-dropdown-item">
+                    <a href="<?= Helper::controller('LogoutController') ?>" class="store-dropdown-item">
                         <i class="fas fa-sign-out-alt"></i> Çıkış Yap
                     </a>
                 </div>
@@ -86,19 +98,19 @@ $storeData = $_SESSION['user'];
     <!-- Sidebar -->
     <nav class="store-sidebar">
         <div class="sidebar-nav">
-            <a href="<?=Helper::storePanelView('anasayfa')?>"
+            <a href="<?= Helper::storePanelView('anasayfa') ?>"
                 class="sidebar-nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>">
                 <i class="fas fa-home"></i> Ana Sayfa
             </a>
-            <a href="<?=Helper::storePanelView('campaigns/campaigns')?>"
+            <a href="<?= Helper::storePanelView('campaigns/campaigns') ?>"
                 class="sidebar-nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'campaigns.php' ? 'active' : ''; ?>">
                 <i class="fas fa-tags"></i> Kampanyalarım
             </a>
-            <a href="<?=Helper::storePanelView('analiz')?>"
+            <a href="<?= Helper::storePanelView('analiz') ?>"
                 class="sidebar-nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'analiz.php' ? 'active' : ''; ?>">
                 <i class="fas fa-chart-line"></i> Analizler
             </a>
-            <a href="<?=Helper::storePanelView('settings')?>"
+            <a href="<?= Helper::storePanelView('settings') ?>"
                 class="sidebar-nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'active' : ''; ?>">
                 <i class="fas fa-cog"></i> Ayarlar
             </a>

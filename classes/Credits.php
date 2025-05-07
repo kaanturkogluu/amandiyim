@@ -2,7 +2,7 @@
 require_once __DIR__ ."/BaseModel.php";
 
 
-class Credist extends BaseModel{
+class Credits extends BaseModel{
 
 
     protected $table = "credit_history";
