@@ -8,20 +8,23 @@ class Campaigns extends BaseModel
 
 
 
-    public function setItemsPerPage($val){
+    public function setItemsPerPage($val)
+    {
         $this->itemsPerPage = $val;
     }
 
-    public function getStoresAllCampaignIds(){
-        $sql= "SELECT store_id, GROUP_CONCAT(id SEPARATOR ', ') AS campaignsIds
+    public function getStoresAllCampaignIds()
+    {
+        $sql = "SELECT store_id, GROUP_CONCAT(id SEPARATOR ', ') AS campaignsIds
         FROM {$this->table} 
         GROUP BY store_id;";
-        $stmt =$this->db->prepare($sql);
+        $stmt = $this->db->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     }
-    public function getAllCampaignsWithPage($page = 1, $limit=null) {
+    public function getAllCampaignsWithPage($page = 1, $limit = null)
+    {
         $offset = ($page - 1) * $this->itemsPerPage;
 
         // Sayfa numarasına göre verileri çek
@@ -52,34 +55,42 @@ class Campaigns extends BaseModel
         $offset = ($page - 1) * $this->itemsPerPage;
 
         // Sayfa numarasına göre verileri çek
-        $sql = "SELECT * FROM " . $this->table . " WHERE store_id = :store_id AND isConfirmed = 1 ORDER BY id DESC LIMIT :offset, :limit";
+        $sql = "SELECT * FROM " . $this->table . " WHERE store_id = :store_id AND campaign_status = :active ORDER BY id DESC LIMIT :offset, :limit";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':store_id', $this->store_id, PDO::PARAM_INT);
+        $stmt->bindValue(':active', "actvie", PDO::PARAM_STR);
+
 
         // Parametreleri bağla
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT); // Doğrudan sayısal değeri bağla
         $stmt->bindValue(':limit', $this->itemsPerPage, PDO::PARAM_INT); // Limit değerini bağla
 
-       
+
         $stmt->execute();
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         return [
-            'total_pages' => $this->getTotalPages("WHERE isConfirmed=1"),
+            'total_pages' => $this->getTotalPages("WHERE campaign_status='active'"),
             'data' => $data
 
         ];
 
 
     }
-    public function getWaitingCampaignsWithPage($page = 1)
+    public function getWaitingCampaignsWithPage($page = 1, )
     {
         $offset = ($page - 1) * $this->itemsPerPage;
 
+
+
         // Sayfa numarasına göre verileri çek
-        $sql = "SELECT * FROM " . $this->table . " WHERE store_id = :store_id AND isConfirmed = 0 ORDER BY id DESC LIMIT :offset, :limit";
+        $sql = "SELECT * FROM " . $this->table . " WHERE store_id = :store_id AND campaign_status = :cs ORDER BY id DESC LIMIT :offset, :limit";
         $stmt = $this->db->prepare($sql);
+
+
         $stmt->bindValue(':store_id', $this->store_id, PDO::PARAM_INT);
+        $stmt->bindValue(':cs', "waiting", PDO::PARAM_INT);
+
 
         // Parametreleri bağla
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT); // Doğrudan sayısal değeri bağla
@@ -89,36 +100,79 @@ class Campaigns extends BaseModel
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         return [
-            'total_pages' => $this->getTotalPages("WHERE isConfirmed=0"),
-            'data' => $data
-
-        ];
-
-
-    } public function getExpiredCampaignsWithPage($page = 1)
-    {
-        $offset = ($page - 1) * $this->itemsPerPage;
-
-        // Sayfa numarasına göre verileri çek
-        $sql = "SELECT * FROM " . $this->table . " WHERE store_id = :store_id AND isConfirmed = 2 ORDER BY id DESC LIMIT :offset, :limit";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(':store_id', $this->store_id, PDO::PARAM_INT);
-
-        // Parametreleri bağla
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT); // Doğrudan sayısal değeri bağla
-        $stmt->bindValue(':limit', $this->itemsPerPage, PDO::PARAM_INT); // Limit değerini bağla
-
-        $stmt->execute();
-        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        return [
-            'total_pages' => $this->getTotalPages("WHERE isConfirmed=2"),
+            'total_pages' => $this->getTotalPages("WHERE campaign_status='waiting'"),
             'data' => $data
 
         ];
 
 
     }
+    public function getExpiredCampaignsWithPage($page = 1, $isAdmin = false)
+    {
+        $offset = ($page - 1) * $this->itemsPerPage;
 
+        if ($isAdmin) {
+
+        }
+        // Sayfa numarasına göre verileri çek
+        $sql = "SELECT * FROM " . $this->table . " WHERE store_id = :store_id AND campaign_status =:cs ORDER BY id DESC LIMIT :offset, :limit";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':store_id', $this->store_id, PDO::PARAM_INT);
+        $stmt->bindValue(':cs', "expired", PDO::PARAM_STR);
+
+        // Parametreleri bağla
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT); // Doğrudan sayısal değeri bağla
+        $stmt->bindValue(':limit', $this->itemsPerPage, PDO::PARAM_INT); // Limit değerini bağla
+
+        $stmt->execute();
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return [
+            'total_pages' => $this->getTotalPages("WHERE campaign_status='expired'"),
+            'data' => $data
+
+        ];
+
+
+    }
+    public function getCampaignWithPageForAdmin($page = 1, $statu)
+    {
+        $offset = ($page - 1) * $this->itemsPerPage;
+
+
+
+        // Sayfa numarasına göre verileri çek
+        if ($statu == 'all') {
+
+            $sql = "SELECT * FROM " . $this->table . "  ORDER BY id DESC LIMIT :offset, :limit";
+
+        } else {
+
+            $sql = "SELECT * FROM " . $this->table . " WHERE  campaign_status = :cs ORDER BY id DESC LIMIT :offset, :limit";
+        }
+        $stmt = $this->db->prepare($sql);
+
+
+        if ($statu != 'all') {
+
+            $stmt->bindParam(':cs', $statu, PDO::PARAM_STR);
+        }
+
+
+        // Parametreleri bağla
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT); // Doğrudan sayısal değeri bağla
+        $stmt->bindValue(':limit', $this->itemsPerPage, PDO::PARAM_INT); // Limit değerini bağla
+
+        $stmt->execute();
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $where = "WHERE campaign_status = '" . $statu . "'";
+        return [
+            'total_pages' => $this->getTotalPages($where),
+            'data' => $data
+
+        ];
+
+
+    }
 }
 ?>

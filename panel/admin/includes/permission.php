@@ -34,12 +34,7 @@ $currentPage = $_SERVER['SCRIPT_NAME']; // Örn: /store/dashboard.php
 
 
 
-$allowedPrefix = "/panel/store/pages";
-$currentPage = dirname($currentPage);
-
-if (!str_starts_with($currentPage, $allowedPrefix)) {
-    $session->kickOut("Sayfa İçin Yetkiniz Bulunmamakta");
-}
+ 
 
 
 ?>

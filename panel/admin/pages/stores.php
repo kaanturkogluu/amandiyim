@@ -1,7 +1,10 @@
 <?php
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../../../classes/Stores.php';
+require_once __DIR__ . '/../../../classes/StoreCategories.php';
 
+$c = new StoreCategories();
+$kategoriler = $c->all();
 $storeStatus = ['active' => ["Aktif", "active"], "blocked" => ["Engellenmiş", "inactive"], "waiting" => ["Beklemede", "inactive"], 'suspend' => ['Askıda', 'inactive']];
 
 $storesObject = new Stores();
@@ -50,6 +53,7 @@ $stores = $stores['data'];
 
 
 ?>
+ 
 
 <div class="admin-content">
     <div class="content-header">
@@ -187,6 +191,19 @@ $stores = $stores['data'];
                         <input type="text" name="store_name" required>
                     </div>
                     <div class="form-group">
+                        <label>Mağaza Türü</label>
+                        <select name="store_category">
+                            <?php
+                            foreach ($kategoriler as $k) {
+                                ?>
+                                <option value="<?= $k['id'] ?>"><?= $k['category_name'] ?></option>
+                                <?php
+                            }
+                            ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <label>Mağaza Telefonu</label>
                         <input type="tel" name="store_phone" required>
                     </div>
@@ -213,7 +230,7 @@ $stores = $stores['data'];
                     </div>
                     <div class="form-group">
                         <label>Açık Adres</label>
-                        <textarea name="local_adress" id=""></textarea>
+                        <textarea name="local_adress"></textarea>
                     </div>
                     <div class="form-group">
                         <label>Konum (Enlem, Boylam)</label>
@@ -228,11 +245,11 @@ $stores = $stores['data'];
                     </div>
                     <div class="form-group">
                         <label>Açılış Saati</label>
-                        <input type="time" name="store_opening_time" id="">
+                        <input type="time" name="store_opening_time">
                     </div>
                     <div class="form-group">
                         <label>Kapanis Saati</label>
-                        <input type="time" name="store_closing_time" id="">
+                        <input type="time" name="store_closing_time">
                     </div>
                 </div>
 
@@ -298,7 +315,7 @@ $stores = $stores['data'];
                 <!-- Mağaza Bilgileri -->
 
                 <input type="hidden" name="action" value="update">
-                <input type="hidden" name="update_store_id" id="update_store_id">
+                <input type="text" name="update_store_id" id="update_store_id">
                 <?php
                 echo $csrf->getTokenField();
                 ?>
@@ -307,6 +324,18 @@ $stores = $stores['data'];
                     <div class="form-group">
                         <label>Mağaza Adı</label>
                         <input type="text" name="update_store_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mağaza Türü</label>
+                        <select name="update_store_category">
+                            <?php
+                            foreach ($kategoriler as $k) {
+                                ?>
+                                <option value="<?= $k['id'] ?>"><?= $k['category_name'] ?></option>
+                                <?php
+                            }
+                            ?>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Mağaza Telefonu</label>
@@ -337,15 +366,15 @@ $stores = $stores['data'];
                     </div>
                     <div class="form-group">
                         <label>Açık Adres</label>
-                        <textarea name="update_local_adress" id=""></textarea>
+                        <textarea name="update_local_adress"></textarea>
                     </div>
                     <div class="form-group">
                         <label>Açılış Saati</label>
-                        <input type="time" name="update_store_opening_time" id="">
+                        <input type="time" name="update_store_opening_time">
                     </div>
                     <div class="form-group">
                         <label>Kapanis Saati</label>
-                        <input type="time" name="update_store_closing_time" id="">
+                        <input type="time" name="update_store_closing_time">
                     </div>
 
                     <div class="form-group">
@@ -852,6 +881,7 @@ $stores = $stores['data'];
         modalContent.querySelector('input[name="update_store_opening_time"]').value = storeData.store_opening_time;
         modalContent.querySelector('input[name="update_store_closing_time"]').value = storeData.store_closing_time;
         modalContent.querySelector('textarea[name="update_local_adress"]').value = storeData.local_adress;
+        modalContent.querySelector('select[name="update_store_category"]').value = storeData.store_category;
         modalContent.querySelector('img[id="update_store_logo_preview"]').src = "<?= Helper::upolads('images/stores_logos/') ?>" + storeData.store_logo;
         modalContent.querySelector('img[id="update_store_main_image_preview"]').src = "<?= Helper::upolads('images/store_images/') ?>" + storeData.store_main_image;
 
@@ -865,7 +895,7 @@ $stores = $stores['data'];
 
         const form = this;
         const formData = new FormData(form);
-
+        formData.append('action', 'update');
 
         // Logo ve ana görsel için resize işlemi
         const logoInput = form.querySelector('input[name="update_store_logo"]');
@@ -885,10 +915,10 @@ $stores = $stores['data'];
             formData.append('update_store_main_image', resizedMainImage, 'resized_main_image.jpg');
         }
 
-
+ 
 
         try {
-            const response = await fetch('/../../../controller/storeController.php', {
+            const response = await fetch('<?= Helper::controller('storeController') ?>', {
                 method: 'POST',
                 body: formData
             });
@@ -902,7 +932,7 @@ $stores = $stores['data'];
                 alert(result.message || 'Güncelleme sırasında bir hata oluştu');
             }
         } catch (error) {
-            console.error('Güncelleme hatası:', error);
+            console.error(error);
             alert('Sunucu ile iletişim sırasında bir hata oluştu');
         }
     });

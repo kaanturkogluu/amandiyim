@@ -19,10 +19,10 @@
                 <h3 class="footer-title">Hızlı Bağlantılar</h3>
                 <ul class="footer-links">
                     <li><a href="#">Ana Sayfa</a></li>
-                    <li><a href="#">Kampanyalar</a></li>
-                    <li><a href="#">Popüler Fırsatlar</a></li>
-                    <li><a href="#">Mağazalar</a></li>
-                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Mağzalar</a></li>
+                    <li><a href="#">Önce Çıkan Kampanyalar </a></li>
+                    <!-- <li><a href="#">Mağazalar</a></li> -->
+                    <!-- <li><a href="#">Blog</a></li> -->
                 </ul>
             </div>
             <div class="footer-column">
@@ -39,20 +39,20 @@
                 <h3 class="footer-title">İletişim</h3>
                 <div class="contact-item">
                     <i class="fas fa-map-marker-alt"></i>
-                    <p>Atatürk Cad. No:123, İstanbul</p>
+                    <p>Dörtyol, Hatay</p>
                 </div>
-                <div class="contact-item">
+                <!-- <div class="contact-item">
                     <i class="fas fa-phone-alt"></i>
                     <p>+90 212 345 67 89</p>
-                </div>
+                </div> -->
                 <div class="contact-item">
                     <i class="fas fa-envelope"></i>
-                    <p>info@firsatsehri.com</p>
+                    <p>info@amandiyim.com</p>
                 </div>
             </div>
         </div>
         <div class="copyright">
-            <p>&copy; 2025 Fırsat Şehri. Tüm hakları saklıdır.</p>
+            <p>&copy; 2025 AMANdiyim. Tüm hakları saklıdır.</p>
         </div>
     </div>
 </footer>

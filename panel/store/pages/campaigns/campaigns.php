@@ -11,8 +11,14 @@ if ($errors) {
 if ($success) {
     echo '<div class="alert alert-success">' . $success . '</div>';
 }
-$campaingState = ['1' => 'Aktif', '0' => 'Onay Bekleniyor', '2' => 'Süresi Doldu'];
-$campaingStateColor = ['1' => 'active', '0' => 'pending', '2' => 'expired'];
+$campaingState =
+    [
+        'active' => ['Aktif', 'active'],
+        'waiting' => ['Onay Bekleniyor', 'pending'],
+        'expired' => ['Süresi Doldu', 'expired'],
+        'suspend' => ['Askıya Alınmış', 'suspend']
+    ];
+
 
 $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 $campaigns = new Campaigns();
@@ -126,7 +132,7 @@ $totalPages = $campaigns['total_pages'];
                         <td><?= $campaign['campaign_end_time'] ?></td>
 
                         <td><span
-                                class="status-badge <?= $campaingStateColor[$campaign['isConfirmed']] ?>"><?= $campaingState[$campaign['isConfirmed']] ?></span>
+                                class="status-badge <?= $campaingState[$campaign['campaign_status']][1] ?>"><?= $campaingState[$campaign['campaign_status']][0] ?></span>
                         </td>
                         <td>
                             <div class="action-buttons">

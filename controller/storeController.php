@@ -84,15 +84,20 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
 
 
+
                 $storeId = (int) $_POST['update_store_id'];
 
-                if (!$session->checkSendedUserId($store_id)) {
+                if (!$session->checkSendedUserId($storeId)) {
 
-                    $response['message'] = 'Kıpraşma , Dur Yerinde';
-                    $response['success'] = false;
-                    $response['data'] = ['Bilgilerinnin Kayıt Edildiğinin Farkındasındır'];
-                    echo json_encode($response);
-                    exit;
+                    if (!$session->isAdmin()) {
+
+
+                        $response['message'] = 'Kıpraşma , Dur Yerinde';
+                        $response['success'] = false;
+                        $response['data'] = ['Bilgilerinnin Kayıt Edildiğinin Farkındasındır'];
+                        echo json_encode($response);
+                        exit;
+                    }
 
                 }
                 $storedata = $stores->find($storeId);
@@ -261,5 +266,3 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 // JSON yanıtını gönder
 header('Content-Type: application/json');
 echo json_encode($response);
-
-

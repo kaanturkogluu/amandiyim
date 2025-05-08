@@ -1,6 +1,95 @@
 <?php
 require_once __DIR__ . '/../includes/header.php';
-?>
+require_once __DIR__ . '/../../../classes/Campaigns.php';
+
+$campaignsObj = new Campaigns();
+
+$page = $_GET['page'] ?? 1;
+
+
+$filter = $_GET['filter'] ?? 'waiting';
+switch ($filter) {
+
+    case 'all':
+        $data = $campaignsObj->getCampaignWithPageForAdmin($page, 'all');
+
+        break;
+
+    case 'active':
+        $data = $campaignsObj->getCampaignWithPageForAdmin($page, 'active');
+
+        break;
+
+    case 'expired':
+        $data = $campaignsObj->getCampaignWithPageForAdmin($page, 'expired');
+
+        break;
+    case 'waiting':
+        $data = $campaignsObj->getCampaignWithPageForAdmin($page, 'waiting');
+
+
+        break;
+}
+$kampdata = $data['data'];
+$totalPages = $data['total_pages'];
+
+$campaignStatus = [
+    'active' => ['active', 'Aktif'],
+    'waiting' => ['waiting', 'Onay Bekliyor'],
+    'expired' => ['expired', 'Süresi Dolmus'],
+    'suspend' => ['suspend', 'Askıya Alınmış']
+]
+
+    ?>
+
+<style>
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        display: inline-block;
+    }
+
+    .status-badge.active {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        border: 1px solid #a5d6a7;
+    }
+
+    .status-badge.waiting {
+        background-color: #fff3e0;
+        color: #ef6c00;
+        border: 1px solid #ffcc80;
+    }
+
+    .status-badge.expired {
+        background-color: #ffebee;
+        color: #c62828;
+        border: 1px solid #ef9a9a;
+    }
+
+    .status-badge.suspend {
+        background-color: #eceff1;
+        color: #455a64;
+        border: 1px solid #b0bec5;
+    }
+
+    /* Hover efektleri */
+    .status-badge:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+        transition: all 0.2s ease;
+    }
+
+    /* Responsive tasarım için */
+    @media (max-width: 768px) {
+        .status-badge {
+            padding: 4px 8px;
+            font-size: 11px;
+        }
+    }
+</style>
 
 <div class="admin-content">
     <div class="content-header">
@@ -16,10 +105,17 @@ require_once __DIR__ . '/../includes/header.php';
             <input type="text" placeholder="Kampanya ara..." id="campaignSearch">
         </div>
         <div class="filter-buttons">
-            <button class="btn btn-outline active" data-filter="all">Tümü</button>
-            <button class="btn btn-outline" data-filter="active">Aktif</button>
-            <button class="btn btn-outline" data-filter="expired">Süresi Dolmuş</button>
-            <button class="btn btn-outline" data-filter="pending">Onay Bekleyen</button>
+            <button class="btn btn-outline active"
+                onclick="window.location.href='<?= Helper::adminViewWithParams('campaigns', 'filter', 'all') ?>'"
+                data-filter="all">Tümü</button>
+            <button class="btn btn-outline" data-filter="active"
+                onclick="window.location.href='<?= Helper::adminViewWithParams('campaigns', 'filter', 'active') ?>'">Aktif</button>
+            <button class="btn btn-outline" data-filter="expired"
+                onclick="window.location.href='<?= Helper::adminViewWithParams('campaigns', 'filter', 'expired') ?>'">Süresi
+                Dolmuş</button>
+            <button class="btn btn-outline" data-filter="pending"
+                onclick="window.location.href='<?= Helper::adminViewWithParams('campaigns', 'filter', 'waiting') ?>'">Onay
+                Bekleyen</button>
         </div>
     </div>
 
@@ -29,7 +125,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <tr>
                     <th>Mağaza</th>
                     <th>Kampanya Başlığı</th>
-                    <th>İndirim Oranı</th>
+
                     <th>Başlangıç</th>
                     <th>Bitiş</th>
                     <th>Durum</th>
@@ -38,163 +134,105 @@ require_once __DIR__ . '/../includes/header.php';
             </thead>
             <tbody>
                 <!-- Örnek veri -->
+                <?php
+                if ($kampdata) {
+
+
+                    foreach ($kampdata as $k) {
+                        ?>
+
+                        <td><?= $k['store_id'] ?></td>
+                        <td><?= $k['campaign_title'] ?></td>
+
+                        <td><?= $k['campaign_start_time'] ?></td>
+                        <td><?= $k['campaign_end_time'] ?></td>
+                        <td><span
+                                class="status-badge <?= $campaignStatus[$k['campaign_status']][0] ?>"><?= $campaignStatus[$k['campaign_status']][1] ?></span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-icon"
+                                    onclick="window.location.href='<?= Helper::adminViewWithParams('campaign-details', 'id', $k['id']) ?>'">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-icon" onclick="deleteCampaign(1)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <?php
+                    }
+                }
+                ?>
                 <tr>
-                    <td>Örnek Mağaza</td>
-                    <td>Yaz İndirimi</td>
-                    <td>%20</td>
-                    <td>01.01.2024</td>
-                    <td>31.01.2024</td>
-                    <td><span class="status-badge active">Aktif</span></td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn btn-icon" onclick="editCampaign(1)">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-icon" onclick="deleteCampaign(1)">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
+
                 </tr>
             </tbody>
         </table>
     </div>
 
-    <div class="pagination">
-        <button class="btn btn-outline" disabled>
-            <i class="fas fa-chevron-left"></i>
-        </button>
-        <button class="btn btn-outline active">1</button>
-        <button class="btn btn-outline">2</button>
-        <button class="btn btn-outline">3</button>
-        <button class="btn btn-outline">
-            <i class="fas fa-chevron-right"></i>
-        </button>
-    </div>
+    <?php
+    if (is_numeric($totalPages)) {
+        ?>
+        <div class="pagination">
+            <!-- Önceki Sayfa Butonu -->
+            <button class="btn btn-outline <?= $page <= 1 ? 'disabled' : '' ?>"
+                onclick="window.location.href='?page=<?= $page - 1 ?>&filter=<?= $currentFilter ?>'">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+
+
+            <!-- Sayfa Numaraları -->
+            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                <button class="btn btn-outline <?= $i == $page ? 'active' : '' ?>"
+                    onclick="window.location.href='?page=<?= $i ?>&filter=<?= $currentFilter ?>'">
+                    <?= $i ?>
+                </button>
+            <?php endfor; ?>
+
+
+            <!-- Sonraki Sayfa Butonu -->
+            <button class="btn btn-outline <?= $page >= $totalPages ? 'disabled' : '' ?>"
+                onclick="window.location.href='?page=<?= $page + 1 ?>&filter=<?= $currentFilter ?>'">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+
+        </div>
+
+        <?php
+    }
+    ?>
+
 </div>
 
-<!-- Kampanya Ekleme/Düzenleme Modal -->
-<div class="modal" id="campaignModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Yeni Kampanya Ekle</h2>
-            <button class="close-modal">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="modal-body">
-            <form id="campaignForm">
-                <div class="form-group">
-                    <label>Mağaza</label>
-                    <select name="store_id" required>
-                        <option value="">Mağaza Seçin</option>
-                        <option value="1">Örnek Mağaza</option>
-                        <option value="2">Test Mağaza</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Kampanya Başlığı</label>
-                    <input type="text" name="title" required>
-                </div>
-                <div class="form-group">
-                    <label>Kampanya Açıklaması</label>
-                    <textarea name="description" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label>İndirim Oranı (%)</label>
-                    <input type="number" name="discount_rate" min="0" max="100" required>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Başlangıç Tarihi</label>
-                        <input type="date" name="start_date" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Bitiş Tarihi</label>
-                        <input type="date" name="end_date" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Durum</label>
-                    <select name="status" required>
-                        <option value="pending">Onay Bekliyor</option>
-                        <option value="active">Aktif</option>
-                        <option value="inactive">Pasif</option>
-                    </select>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-outline" onclick="closeModal()">İptal</button>
-                    <button type="submit" class="btn btn-primary">Kaydet</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+
 
 <script>
-// Modal işlemleri
-function openAddCampaignModal() {
-    document.getElementById('campaignModal').classList.add('active');
-    document.getElementById('campaignForm').reset();
-    document.querySelector('.modal-header h2').textContent = 'Yeni Kampanya Ekle';
-}
+    // Modal işlemleri
 
-function closeModal() {
-    document.getElementById('campaignModal').classList.remove('active');
-}
 
-// ESC tuşu ile modalı kapatma
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeModal();
-    }
-});
 
-// Modal dışına tıklayarak kapatma
-document.getElementById('campaignModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeModal();
-    }
-});
 
-// Form gönderimi
-document.getElementById('campaignForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    // Form verilerini işleme
-    closeModal();
-});
 
-// Kampanya düzenleme
-function editCampaign(id) {
-    // Kampanya verilerini getir ve modalı aç
-    document.querySelector('.modal-header h2').textContent = 'Kampanya Düzenle';
-    document.getElementById('campaignModal').classList.add('active');
-}
 
-// Kampanya silme
-function deleteCampaign(id) {
-    if (confirm('Bu kampanyayı silmek istediğinizden emin misiniz?')) {
-        // Silme işlemi
-    }
-}
 
-// Arama işlevi
-document.getElementById('campaignSearch').addEventListener('input', function(e) {
-    // Arama işlemi
-});
-
-// Filtreleme işlevi
-document.querySelectorAll('.filter-buttons .btn').forEach(button => {
-    button.addEventListener('click', function() {
-        document.querySelectorAll('.filter-buttons .btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        this.classList.add('active');
-        // Filtreleme işlemi
+    // Arama işlevi
+    document.getElementById('campaignSearch').addEventListener('input', function (e) {
+        // Arama işlemi
     });
-});
+
+    // Filtreleme işlevi
+    document.querySelectorAll('.filter-buttons .btn').forEach(button => {
+        button.addEventListener('click', function () {
+            document.querySelectorAll('.filter-buttons .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            this.classList.add('active');
+            // Filtreleme işlemi
+        });
+    });
 </script>
 
 <?php
 require_once __DIR__ . '/../includes/footer.php';
-?> 
+?>

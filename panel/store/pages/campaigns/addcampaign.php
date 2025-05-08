@@ -92,7 +92,7 @@ require_once __DIR__ . '/../../includes/header.php';
             <h3>Kampanya Detayları</h3>
             <div class="form-group">
                 <label for="campaign_type">Kampanya Tipi</label>
-                <select id="campaign_type" name="campaign_type" class="form-control" required>
+                <select id="campaign_type" name="campaign_type" class="form-control" required onchange="toggleDiscountField()">
                     <option value="">Seçiniz</option>
                     <option value="discount">İndirim</option>
                     <option value="bogo">1 Alana 1 Bedava</option>
@@ -100,10 +100,9 @@ require_once __DIR__ . '/../../includes/header.php';
                 </select>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" id="discount_field_group" style="display: none;">
                 <label for="campaign_discount">İndirim Oranı (%)</label>
-                <input type="number" id="campaign_discount" name="campaign_discount" class="form-control" min="0"
-                    max="100">
+                <input type="number" id="campaign_discount" name="campaign_discount" class="form-control" min="0" max="100">
             </div>
 
             <div class="form-group">
@@ -1663,6 +1662,27 @@ require_once __DIR__ . '/../../includes/header.php';
                 closePreviewModal();
             }
         });
+    });
+</script>
+
+<script>
+    function toggleDiscountField() {
+        const campaignType = document.getElementById('campaign_type').value;
+        const discountField = document.getElementById('discount_field_group');
+        
+        if (campaignType === 'discount') {
+            discountField.style.display = 'block';
+            document.getElementById('campaign_discount').required = true;
+        } else {
+            discountField.style.display = 'none';
+            document.getElementById('campaign_discount').required = false;
+            document.getElementById('campaign_discount').value = '';
+        }
+    }
+
+    // Sayfa yüklendiğinde kampanya tipini kontrol et
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleDiscountField();
     });
 </script>
 
