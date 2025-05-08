@@ -85,6 +85,16 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
 
                 $storeId = (int) $_POST['update_store_id'];
+
+                if (!$session->checkSendedUserId($store_id)) {
+
+                    $response['message'] = 'Kıpraşma , Dur Yerinde';
+                    $response['success'] = false;
+                    $response['data'] = ['Bilgilerinnin Kayıt Edildiğinin Farkındasındır'];
+                    echo json_encode($response);
+                    exit;
+
+                }
                 $storedata = $stores->find($storeId);
                 $updateData = $_POST;
                 unset($updateData['action']);
@@ -161,11 +171,11 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 $storeLogo = $storedata['store_logo'];
                 $storemainimage = $storedata['store_main_image'];
 
-                if($storeLogo !='store-default-icon.jpg'){
+                if ($storeLogo != 'store-default-icon.jpg') {
 
                     $fileUploader->deletePhoto($storeLogo, 'images/stores_logos');
                 }
-                if($storemainimage != 'store-default-image.jpg'){
+                if ($storemainimage != 'store-default-image.jpg') {
 
                     $fileUploader->deletePhoto($storemainimage, 'images/store_images');
                 }

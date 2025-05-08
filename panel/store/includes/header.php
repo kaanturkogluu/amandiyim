@@ -6,32 +6,35 @@ $session = Session::getInstance();
 $helper = Helper::getInstance();
 $csrf = CsrfToken::getInstance();
 
+
 //  [_token] => 634468a75c9649b15b2562f077b838afb4093d6384641971b71412c8c3fb67d0
 //  [user] => Array
 //      (
-//          [id] => 1
-//          [store_location] => İstanbul
-//          [store_owner_password] => $2y$10$gZK9tW.6LJGt1VOc/nfvy.UhMf5y/6jNiABuCUZyrTyWZj.rctgYm
-//          [store_owner_mail] => test@store.com
-//          [store_name] => Test Mağaza
-//          [store_owner_phone] => 5551234567
-//          [store_owner_name] => Test Mağaza Sahibi
-//          [work_time] => 09:00 - 18:00
-//          [store_adress] => Test Mağaza Adresi
-//          [store_logo] => 
-//          [store_phone] => 
-//          [store_main_image] => 
-//          [store_credits] => 10000
-//          [store_statu] => active
-//          [store_confirmed_ip_adress] => 
-//          [created_at] => 2025-04-10 18:54:18
-//          [updated_at] => 2025-04-10 18:54:18
-//      )
-
-//  [user_type] => store
-//  [is_logged_in] => 1
-//  [last_activity] => 1745142502
-$storeData = $_SESSION['user'];
+    //          [id] => 1
+    //          [store_location] => İstanbul
+    //          [store_owner_password] => $2y$10$gZK9tW.6LJGt1VOc/nfvy.UhMf5y/6jNiABuCUZyrTyWZj.rctgYm
+    //          [store_owner_mail] => test@store.com
+    //          [store_name] => Test Mağaza
+    //          [store_owner_phone] => 5551234567
+    //          [store_owner_name] => Test Mağaza Sahibi
+    //          [work_time] => 09:00 - 18:00
+    //          [store_adress] => Test Mağaza Adresi
+    //          [store_logo] => 
+    //          [store_phone] => 
+    //          [store_main_image] => 
+    //          [store_credits] => 10000
+    //          [store_statu] => active
+    //          [store_confirmed_ip_adress] => 
+    //          [created_at] => 2025-04-10 18:54:18
+    //          [updated_at] => 2025-04-10 18:54:18
+    //      )
+    
+    //  [user_type] => store
+    //  [is_logged_in] => 1
+    //  [last_activity] => 1745142502
+    $storeData = $_SESSION['user'];
+    
+    require_once __DIR__ . "/permission.php";
 
 
 

@@ -203,7 +203,12 @@ class Session
 
     public function kickOut($message = "Tekrar Giriş Yapınız")
     {
-        $this->clear();
+        // Flash mesajı geçici olarak sakla
+
+        $this->clear(); // session_unset() ve session_destroy()
+        $this->start(); // Session'ı tekrar başlat
+
+
         $this->flash('error', $message);
         header("Location:" . Helper::view('giris'));
         exit;

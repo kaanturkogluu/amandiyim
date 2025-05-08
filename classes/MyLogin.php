@@ -234,7 +234,7 @@ class MyLogin
      */
     public function logout(): void
     {
-        $this->session->destroy();
+        $this->session->clear();
     }
 
     /**
@@ -274,7 +274,11 @@ class MyLogin
      */
     public function getErrors(): array
     {
-        return $this->session->get('login_errors', []);
+        $errors = $this->session->get('login_errors', []);
+        if (!is_array($errors)) {
+            $errors = [$errors];
+        }
+        return $errors;
     }
     public  function clearErrors():void 
     {

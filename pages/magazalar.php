@@ -241,7 +241,7 @@ function createStoreCard(store) {
     return `
     <div class="store-card" onclick="window.location.href='magaza-detay.php?id=${store.id}'">
         <div class="store-image">
-            <img src="<?=Helper::baseUrl(). '/uploads/images/store_images/'?>${store.store_main_image || 'https://img.freepik.com/free-vector/shop-with-sign-we-are-open_52683-38687.jpg'}" alt="${store.store_name}">
+            <img src="<?=Helper::baseUrl(). '/uploads/images/store_images/'?>${store.store_main_image }" alt="${store.store_name}"  onerror="this.onerror=null;this.src='<?= Helper::upolads('images/store_images/store-default-image.jpg') ?>';">
             <div class="store-status ${isStoreOpen(store.work_time) ? 'active' : ''}">${isStoreOpen(store.work_time) ? 'Açık' : 'Kapalı'}</div>
         </div>
         <div class="store-info">

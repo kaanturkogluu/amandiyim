@@ -9,6 +9,7 @@ $storeid = (int) $session->getUserId();
 $m = $stores->find($storeid);
 
 
+ ;
 
 ?>
 
@@ -35,7 +36,7 @@ $m = $stores->find($storeid);
                 <input type="hidden" name="update_store_id" value="<?= $session->getUserId() ?>">
                 <input type="hidden" name="action" value="update">
                 <div class="settings-card-header">
-                    <h3>Mağaza Bilgileri</h3>
+                    <h3>Mağaza Bilgileri  - Bilgi Değişiklikleri Haftada 1 Kez Yapılabilir</h3>
                     <button class="btn-icon" onclick="toggleCard('store-info')" type="button">
                         <i class="fas fa-chevron-down"></i>
                     </button> <?php
@@ -86,7 +87,7 @@ $m = $stores->find($storeid);
                             <div class="file-preview">
                                 <img class="logo-preview"
                                     src="<?= Helper::upolads('images/stores_logos/') . $m['store_logo'] ?>"
-                                    alt="Store Logo">
+                                    alt="Store Logo"  onerror="this.onerror=null;this.src='<?= Helper::upolads('images/stores_logos/store-default-icon.jpg') ?>';">
                             </div>
                         </div>
                     </div>
@@ -97,7 +98,8 @@ $m = $stores->find($storeid);
                             <div class="file-preview">
                                 <img class="main-image-preview"
                                     src="<?= Helper::upolads('images/store_images/') . $m['store_main_image'] ?>"
-                                    alt="Store Main Image">
+                                    alt="Store Main Image"
+                                    onerror="this.onerror=null;this.src='<?= Helper::upolads('images/store_images/store-default-image.jpg') ?>';">
                             </div>
                         </div>
                     </div>

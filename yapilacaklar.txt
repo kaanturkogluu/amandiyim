@@ -1,5 +1,7 @@
 istatistikler 24 saatlik periyot ile cron joba eklenecek - kodlar hazır
-kampanya görüntlenmlerin store_id eklenecek 
+ 
 
 
-formdan gönderilen id ler ile sessiondaki idleri karsılastır
+ 
+getstarted kısmında telefon onayı olacak , şifre güncellemesi olacak , 
+

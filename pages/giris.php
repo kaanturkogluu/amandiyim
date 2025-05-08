@@ -22,21 +22,27 @@ $login = MyLogin::getInstance();// Kullanıcı zaten giriş yapmışsa yönlendi
  
 if ($login->isLoggedIn()) {
     $redirectUrl = match ($login->getUserType()) {
-        'admin' => '../panel/admin/dashboard',
-        'store' => '../panel/store/dashboard',
-        default => '../panel/customer/dashboard'
+        'admin' => Helper::adminPanelView('anasayfa'),
+        'store' => Helper::storePanelView('anasayfa'),
+        'customer'=> Helper::customerPanelView('anasayfa')
     };
-    header("Location: $redirectUrl");
+    Helper::redirect($redirectUrl);
+  
     exit;
 }
-
+ 
 $errors = $login->getErrors();
 if (empty($errors)) {
-    $errors = $session->getFlash("error");
+    $flashError = $session->getFlash("error");
+    if (!empty($flashError)) {
+        $errors = [$flashError]; // Convert single error message to array
+    }
 }
+ 
 $success = $session->get('success');
 $login->clearErrors();
 $login->clearSuccess();
+
 
 // Font Awesome ekle
 echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">';
@@ -401,7 +407,9 @@ $remember = isset($_POST['remember']) ? true : false;
 
         <?php if (!empty($errors)): ?>
             <div class="alert alert-danger alert-dismissible">
-                <?php foreach ($errors as $error): ?>
+                <?php 
+                
+                foreach ($errors as $error): ?>
                     <p><?php echo $error; ?></p>
                 <?php endforeach; ?>
                 <button type="button" class="close" onclick="this.parentElement.style.display='none'">&times;</button>

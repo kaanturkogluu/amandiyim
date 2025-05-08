@@ -5,6 +5,8 @@ require_once __DIR__ . '/../../../classes/CsrfToken.php';
 $helper = Helper::getInstance();
 $session = Session::getInstance();
 $csrf =CsrfToken::getInstance(); 
+
+require_once __DIR__."/permission.php";
 ?>
 <!DOCTYPE html>
 <html lang="tr">
