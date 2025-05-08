@@ -226,6 +226,14 @@ $stores = $stores['data'];
                             </button>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label>Açılış Saati</label>
+                        <input type="time" name="store_opening_time" id="">
+                    </div>
+                    <div class="form-group">
+                        <label>Kapanis Saati</label>
+                        <input type="time" name="store_closing_time" id="">
+                    </div>
                 </div>
 
                 <!-- Yetkili Bilgileri -->
@@ -331,14 +339,21 @@ $stores = $stores['data'];
                         <label>Açık Adres</label>
                         <textarea name="update_local_adress" id=""></textarea>
                     </div>
+                    <div class="form-group">
+                        <label>Açılış Saati</label>
+                        <input type="time" name="update_store_opening_time" id="">
+                    </div>
+                    <div class="form-group">
+                        <label>Kapanis Saati</label>
+                        <input type="time" name="update_store_closing_time" id="">
+                    </div>
 
                     <div class="form-group">
                         <label>Konum (Enlem, Boylam)</label>
                         <div class="location-input-group">
                             <input type="text" name="update_store_location" id="update_store_location"
                                 placeholder="Haritadan seçin veya koordinat girin" required>
-                            <button onclick="konumuAl()" type="button" class="btn btn-outline"
-                                onclick="openLocationPicker()">
+                            <button onclick="konumuAl()" type="button" class="btn btn-outline">
                                 <i class="fas fa-map-marker-alt"></i> Konum Al
                             </button>
                         </div>
@@ -834,6 +849,8 @@ $stores = $stores['data'];
         modalContent.querySelector('textarea[name="update_store_adress"]').value = storeData.store_adress;
         modalContent.querySelector('input[name="update_store_credits"]').value = storeData.store_credits;
         modalContent.querySelector('select[name="update_store_statu"]').value = storeData.store_statu;
+        modalContent.querySelector('input[name="update_store_opening_time"]').value = storeData.store_opening_time;
+        modalContent.querySelector('input[name="update_store_closing_time"]').value = storeData.store_closing_time;
         modalContent.querySelector('textarea[name="update_local_adress"]').value = storeData.local_adress;
         modalContent.querySelector('img[id="update_store_logo_preview"]').src = "<?= Helper::upolads('images/stores_logos/') ?>" + storeData.store_logo;
         modalContent.querySelector('img[id="update_store_main_image_preview"]').src = "<?= Helper::upolads('images/store_images/') ?>" + storeData.store_main_image;

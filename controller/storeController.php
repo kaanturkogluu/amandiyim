@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     // CSRF token kontrolü
     if (!$csrf->validateToken($_POST['_token'])) {
         $response['message'] = 'Güvenlik doğrulaması başarısız!';
-        $response['data']=$_POST;
+        $response['data'] = $_POST;
         echo json_encode($response);
         exit;
     }
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 $storeData = $_POST;
 
                 unset($storeData['action']);
-              
+
                 unset($storeData['_token']);
                 $password = $storeData['store_owner_password'];
                 $storeData['store_owner_password'] = password_hash($password, PASSWORD_DEFAULT);
@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 }
 
                 unset($newData['store_id']);
-              
+
 
                 if (isset($_FILES['update_store_logo']) && $_FILES['update_store_logo']['error'] === UPLOAD_ERR_OK) {
                     // Yeni logo yüklendi
@@ -110,14 +110,21 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                     // Logo yükleme
                     $newData['store_logo'] = $logoResult;
                     //Eski resmi sil
-                    $fileUploader->deletePhoto($storedata['store_logo'], 'images/stores_logos');
+
+                    if ($storedata['store_logo'] != 'store-default-icon.jpg') {
+
+                        $fileUploader->deletePhoto($storedata['store_logo'], 'images/stores_logos');
+                    }
                 }
                 if (isset($_FILES['update_store_main_image']) && $_FILES['update_store_main_image']['error'] === UPLOAD_ERR_OK) {
                     // Yeni ana görsel yüklendi
                     $imagePath = $fileUploader->uploadPhoto($_FILES['update_store_main_image'], 'store_images');
                     $newData['store_main_image'] = $imagePath;
                     //Eski resmi sil
-                    $fileUploader->deletePhoto($storedata['store_main_image'], 'images/store_images');
+                    if ($storedata['store_logo'] != 'store-default-image.jpg') {
+
+                        $fileUploader->deletePhoto($storedata['store_main_image'], 'images/store_images');
+                    }
                 }
 
 
@@ -154,8 +161,14 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 $storeLogo = $storedata['store_logo'];
                 $storemainimage = $storedata['store_main_image'];
 
-                $fileUploader->deletePhoto($storeLogo, 'images/stores_logos');
-                $fileUploader->deletePhoto($storemainimage, 'images/store_images');
+                if($storeLogo !='store-default-icon.jpg'){
+
+                    $fileUploader->deletePhoto($storeLogo, 'images/stores_logos');
+                }
+                if($storemainimage != 'store-default-image.jpg'){
+
+                    $fileUploader->deletePhoto($storemainimage, 'images/store_images');
+                }
 
 
                 // Mağazayı sil

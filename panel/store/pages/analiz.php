@@ -24,7 +24,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <i class="fas fa-clock"></i>
             </div>
             <div class="stat-info">
-                <h3>Verilerinizin Analizi 1 Ay Sonra Başlayacaktır</h3>
+                <h3>Verilerinizin Analizi İçin En Az 1 Aylık Veriye İhtiyaç Duyulmaktadır</h3>
 
             </div>
 

@@ -15,6 +15,15 @@ class Session
         }
     }
 
+    /**Formdan Gelen id ile sessiondaki aynı mı diye kontrol et , harici durumlarda ekstra önlem alinabilir */
+    public function checkSendedUserId($sendedId)
+    {
+        if (self::getUserId() != $sendedId) {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Singleton instance'ı döndürür
      */
@@ -26,7 +35,8 @@ class Session
         return self::$instance;
     }
     /**Kullanıcının session üzerindeki id sini verir */
-    public function getUserId(){
+    public function getUserId()
+    {
         return $_SESSION['user']['id'];
     }
 
@@ -35,19 +45,22 @@ class Session
      * @return bool
      */
 
-     public function isLoggedIn(){
+    public function isLoggedIn()
+    {
         return isset($_SESSION['is_logged_in']);
-     }
-     /**
-      * /Oturum Açan mağaza mı kontrol eder
-      * @return bool
-      */
-     public function isStore(){
+    }
+    /**
+     * /Oturum Açan mağaza mı kontrol eder
+     * @return bool
+     */
+    public function isStore()
+    {
         return isset($_SESSION['user_type']) && $_SESSION['user_type'] == "store";
-     }
-    public function isAdmin (){
+    }
+    public function isAdmin()
+    {
 
-        if($_SESSION['user_type'] == "admin"){
+        if ($_SESSION['user_type'] == "admin") {
             return true;
         }
         return false;
@@ -63,7 +76,7 @@ class Session
             ini_set('session.use_only_cookies', 1);
             ini_set('session.cookie_secure', isset($_SERVER['HTTPS']));
             ini_set('session.cookie_samesite', 'Lax');
-            
+
             session_start();
             $this->started = true;
 
@@ -188,10 +201,11 @@ class Session
         $_SESSION['success'] = $message;
     }
 
-    public function kickOut($message="Tekrar Giriş Yapınız"){
+    public function kickOut($message = "Tekrar Giriş Yapınız")
+    {
         $this->clear();
-        $this->flash('error',$message);
-        header("Location:".Helper::view('giris'));
+        $this->flash('error', $message);
+        header("Location:" . Helper::view('giris'));
         exit;
     }
     /**
@@ -277,4 +291,4 @@ class Session
     {
         return $_SESSION;
     }
-} 
+}

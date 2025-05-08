@@ -772,14 +772,6 @@ th {
         margin-left: 250px;
     }
 
-    .mobile-overlay {
-        display: block;
-    }
-
-    .mobile-overlay.active {
-        display: block;
-    }
-
     .store-dropdown-menu {
         position: fixed;
         top: 60px;

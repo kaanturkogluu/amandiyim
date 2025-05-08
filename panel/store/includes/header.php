@@ -67,16 +67,12 @@ $storeData = $_SESSION['user'];
         </div>
         <div class="store-profile">
 
-            <?php
-            if (!isset($storeData['store_logo']) || $storeData['store_logo'] === '') {
-                $storelogo = Helper::baseUrl() . $storeData['store_logo'];
-            } else {
-                $storelogo = Helper::baseUrl() . "/uploads/stores_logos/" . $storeData['store_logo'] . "";
-            }
 
 
-            ?>
-            <img src="<?= $storelogo ?>" alt="Profile">
+
+
+            <img src="<?= Helper::upolads('images/stores_logos/') . trim($storeData['store_logo']) ?>" alt="Profile"
+                onerror="this.onerror=null;this.src='<?= Helper::upolads('images/stores_logos/store-default-icon.jpg') ?>';">
             <span>Test Mağaza</span>
             <div class="store-dropdown">
                 <div class="store-dropdown-menu">
