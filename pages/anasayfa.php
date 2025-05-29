@@ -149,7 +149,7 @@ function createCampaignCard(campaign) {
             break;
         case 'discount':
             inspan =
-                `<span class="campaign-discount campaign-discount-discount">${campaign.campaign_disscount_off || ''} İndirim</span>`;
+                `<span class="campaign-discount campaign-discount-discount">%${campaign.campaign_disscount_off || ''} İndirim</span>`;
             cardClass = 'discount-bg';
             break;
         case 'bundle':
@@ -160,10 +160,10 @@ function createCampaignCard(campaign) {
     return `<div class="campaign-card ${cardClass}" data-id="${campaign.id}">
         ${inspan}
         <img 
-            src="${campaign.campaign_image || 'https://static9.depositphotos.com/1669785/1150/i/450/depositphotos_11506024-stock-photo-package.jpg'}" 
+            src="<?=Helper::upolads('images/campaign_images/')?>${ campaign.campaign_image.slice(7)}" 
             alt="Kampanya" 
             class="campaign-card-img"
-            onerror="this.onerror=null;this.src='https://startiks.com/upload/367620ekle12.jpg';"
+          "
         >
         <div class="campaign-card-content">
             <h3 class="campaign-card-title">${campaign.campaign_title || ''}</h3>

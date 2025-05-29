@@ -3,751 +3,284 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amandiyim - Dokümantasyon</title>
+    <title>Sistem Dokümantasyonu</title>
     <style>
-        :root {
-            --primary-color: #2563eb;
-            --secondary-color: #1e40af;
-            --text-color: #1f2937;
-            --bg-color: #ffffff;
-            --sidebar-bg: #f3f4f6;
-            --border-color: #e5e7eb;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        }
-
         body {
-            display: flex;
-            min-height: 100vh;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            width: 300px;
-            background-color: var(--sidebar-bg);
-            padding: 2rem;
-            border-right: 1px solid var(--border-color);
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-        }
-
-        .sidebar-header {
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .sidebar-header h1 {
-            font-size: 1.5rem;
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .sidebar-header p {
-            font-size: 0.875rem;
-            color: #6b7280;
-        }
-
-        .nav-menu {
-            list-style: none;
-        }
-
-        .nav-menu li {
-            margin-bottom: 0.5rem;
-        }
-
-        .nav-menu a {
-            display: block;
-            padding: 0.5rem 1rem;
-            color: var(--text-color);
-            text-decoration: none;
-            border-radius: 0.375rem;
-            transition: all 0.2s;
-        }
-
-        .nav-menu a:hover {
-            background-color: #e5e7eb;
-            color: var(--primary-color);
-        }
-
-        .nav-menu a.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        /* Main Content Styles */
-        .main-content {
-            flex: 1;
-            margin-left: 300px;
-            padding: 2rem;
-            max-width: 800px;
-        }
-
-        .content-section {
-            margin-bottom: 3rem;
-        }
-
-        .content-section h2 {
-            font-size: 1.875rem;
-            color: var(--text-color);
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .content-section h3 {
-            font-size: 1.5rem;
-            color: var(--text-color);
-            margin: 2rem 0 1rem;
-        }
-
-        .content-section p {
-            margin-bottom: 1rem;
+            font-family: Arial, sans-serif;
             line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
         }
-
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+        }
+        .section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
         .code-block {
-            background-color: #1f2937;
-            color: #e5e7eb;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin: 1rem 0;
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
             overflow-x: auto;
         }
-
-        .code-block code {
-            font-family: 'Fira Code', monospace;
-            font-size: 0.875rem;
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100vh;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
         }
-
-        .note {
-            background-color: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 0.375rem;
+        .content {
+            margin-left: 270px;
         }
-
-        .warning {
-            background-color: #fee2e2;
-            border-left: 4px solid #ef4444;
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 0.375rem;
+        .nav a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 10px 0;
         }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-                border-right: none;
-                border-bottom: 1px solid var(--border-color);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            body {
-                flex-direction: column;
-            }
+        .nav a:hover {
+            color: #3498db;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background: #f4f4f4;
         }
     </style>
 </head>
 <body>
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <h1>Amandiyim</h1>
-            <p>Proje Dokümantasyonu</p>
+    <nav class="nav">
+        <h2>İçindekiler</h2>
+        <a href="#genel-bakis">1. Genel Bakış</a>
+        <a href="#sistem-mimarisi">2. Sistem Mimarisi</a>
+        <a href="#klasor-yapisi">3. Klasör Yapısı</a>
+        <a href="#veritabani">4. Veritabanı Yapısı</a>
+        <a href="#kullanici-yonetimi">5. Kullanıcı Yönetimi</a>
+        <a href="#mağaza-yonetimi">6. Mağaza Yönetimi</a>
+        <a href="#api">7. API Yapısı</a>
+        <a href="#guvenlik">8. Güvenlik</a>
+        <a href="#frontend">9. Frontend Yapısı</a>
+        <a href="#backend">10. Backend Yapısı</a>
+    </nav>
+
+    <div class="content">
+        <div class="container">
+            <h1 id="genel-bakis">1. Genel Bakış</h1>
+            <div class="section">
+                <p>Bu sistem, müşteriler, mağazalar ve yöneticiler için çok kullanıcılı bir e-ticaret platformudur. Sistem üç ana kullanıcı tipini destekler:</p>
+                <ul>
+                    <li>Müşteriler (Google ile giriş yapabilir)</li>
+                    <li>Mağazalar (E-posta/şifre ile giriş)</li>
+                    <li>Yöneticiler (E-posta/şifre ile giriş)</li>
+                </ul>
+            </div>
+
+            <h1 id="sistem-mimarisi">2. Sistem Mimarisi</h1>
+            <div class="section">
+                <h3>2.1 Teknoloji Stack</h3>
+                <ul>
+                    <li>Backend: PHP</li>
+                    <li>Frontend: HTML, CSS, JavaScript</li>
+                    <li>Veritabanı: MySQL</li>
+                    <li>Kimlik Doğrulama: Google OAuth2</li>
+                </ul>
+
+                <h3>2.2 Mimari Yapı</h3>
+                <p>Sistem MVC (Model-View-Controller) mimarisini kullanır:</p>
+                <ul>
+                    <li>Model: Veritabanı işlemleri ve iş mantığı</li>
+                    <li>View: Kullanıcı arayüzü ve görünümler</li>
+                    <li>Controller: İstek yönetimi ve iş akışı kontrolü</li>
+                </ul>
+            </div>
+
+            <h1 id="klasor-yapisi">3. Klasör Yapısı</h1>
+            <div class="section">
+                <h3>3.1 Ana Dizinler</h3>
+                <table>
+                    <tr>
+                        <th>Klasör</th>
+                        <th>Açıklama</th>
+                    </tr>
+                    <tr>
+                        <td>/api</td>
+                        <td>API endpoint'leri ve işleyicileri</td>
+                    </tr>
+                    <tr>
+                        <td>/assets</td>
+                        <td>Statik dosyalar (CSS, JS, resimler)</td>
+                    </tr>
+                    <tr>
+                        <td>/classes</td>
+                        <td>PHP sınıf dosyaları</td>
+                    </tr>
+                    <tr>
+                        <td>/config</td>
+                        <td>Yapılandırma dosyaları</td>
+                    </tr>
+                    <tr>
+                        <td>/controller</td>
+                        <td>Controller sınıfları</td>
+                    </tr>
+                    <tr>
+                        <td>/includes</td>
+                        <td>Ortak PHP dosyaları</td>
+                    </tr>
+                    <tr>
+                        <td>/Model</td>
+                        <td>Veritabanı model sınıfları</td>
+                    </tr>
+                    <tr>
+                        <td>/pages</td>
+                        <td>Frontend sayfa şablonları</td>
+                    </tr>
+                    <tr>
+                        <td>/panel</td>
+                        <td>Yönetim paneli dosyaları</td>
+                    </tr>
+                    <tr>
+                        <td>/uploads</td>
+                        <td>Kullanıcı yüklemeleri</td>
+                    </tr>
+                </table>
+            </div>
+
+            <h1 id="kullanici-yonetimi">5. Kullanıcı Yönetimi</h1>
+            <div class="section">
+                <h3>5.1 Kullanıcı Tipleri</h3>
+                <ul>
+                    <li><strong>Müşteriler:</strong>
+                        <ul>
+                            <li>Google ile giriş yapabilir</li>
+                            <li>Mağaza ürünlerini görüntüleyebilir</li>
+                            <li>Sipariş verebilir</li>
+                        </ul>
+                    </li>
+                    <li><strong>Mağazalar:</strong>
+                        <ul>
+                            <li>E-posta/şifre ile giriş</li>
+                            <li>Ürün yönetimi</li>
+                            <li>Sipariş yönetimi</li>
+                            <li>Mağaza ayarları</li>
+                        </ul>
+                    </li>
+                    <li><strong>Yöneticiler:</strong>
+                        <ul>
+                            <li>E-posta/şifre ile giriş</li>
+                            <li>Mağaza yönetimi</li>
+                            <li>Kullanıcı yönetimi</li>
+                            <li>Sistem ayarları</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3>5.2 Kimlik Doğrulama</h3>
+                <p>Sistem iki farklı kimlik doğrulama yöntemi kullanır:</p>
+                <ul>
+                    <li>Google OAuth2 (Müşteriler için)</li>
+                    <li>E-posta/Şifre (Mağazalar ve Yöneticiler için)</li>
+                </ul>
+            </div>
+
+            <h1 id="mağaza-yonetimi">6. Mağaza Yönetimi</h1>
+            <div class="section">
+                <h3>6.1 Mağaza Özellikleri</h3>
+                <ul>
+                    <li>Mağaza profili yönetimi</li>
+                    <li>Ürün kataloğu yönetimi</li>
+                    <li>Sipariş takibi</li>
+                    <li>Çalışma saatleri ayarları</li>
+                    <li>Konum bilgisi yönetimi</li>
+                </ul>
+
+                <h3>6.2 Mağaza Ayarları</h3>
+                <ul>
+                    <li>Mağaza logosu ve ana görsel</li>
+                    <li>İletişim bilgileri</li>
+                    <li>Adres ve konum bilgileri</li>
+                    <li>Çalışma saatleri</li>
+                    <li>Kategori ayarları</li>
+                </ul>
+            </div>
+
+            <h1 id="guvenlik">8. Güvenlik</h1>
+            <div class="section">
+                <h3>8.1 Güvenlik Önlemleri</h3>
+                <ul>
+                    <li>CSRF token koruması</li>
+                    <li>XSS koruması</li>
+                    <li>SQL injection koruması</li>
+                    <li>Şifre hashleme (password_hash)</li>
+                    <li>Session yönetimi</li>
+                </ul>
+
+                <h3>8.2 Dosya Güvenliği</h3>
+                <ul>
+                    <li>Yüklenen dosyaların tür kontrolü</li>
+                    <li>Dosya boyutu sınırlaması</li>
+                    <li>Güvenli dosya isimlendirme</li>
+                </ul>
+            </div>
+
+            <h1 id="frontend">9. Frontend Yapısı</h1>
+            <div class="section">
+                <h3>9.1 Kullanılan Teknolojiler</h3>
+                <ul>
+                    <li>HTML5</li>
+                    <li>CSS3</li>
+                    <li>JavaScript (Vanilla)</li>
+                    <li>Font Awesome (ikonlar)</li>
+                </ul>
+
+                <h3>9.2 Sayfa Yapısı</h3>
+                <ul>
+                    <li>Responsive tasarım</li>
+                    <li>Modüler CSS yapısı</li>
+                    <li>Dinamik form validasyonu</li>
+                    <li>AJAX tabanlı işlemler</li>
+                </ul>
+            </div>
+
+            <h1 id="backend">10. Backend Yapısı</h1>
+            <div class="section">
+                <h3>10.1 PHP Sınıfları</h3>
+                <ul>
+                    <li>MyLogin: Kullanıcı girişi yönetimi</li>
+                    <li>Stores: Mağaza işlemleri</li>
+                    <li>Helper: Yardımcı fonksiyonlar</li>
+                    <li>Session: Oturum yönetimi</li>
+                    <li>CsrfToken: CSRF koruması</li>
+                </ul>
+
+                <h3>10.2 Controller Yapısı</h3>
+                <ul>
+                    <li>loginController: Giriş işlemleri</li>
+                    <li>storeController: Mağaza işlemleri</li>
+                    <li>googleloginController: Google girişi</li>
+                </ul>
+            </div>
         </div>
-        <nav>
-            <ul class="nav-menu">
-                <li><a href="#genel-bakis">Genel Bakış</a></li>
-                <li><a href="#kurulum">Kurulum</a></li>
-                <li><a href="#veritabani">Veritabanı</a></li>
-                <li><a href="#form-islemleri">Form İşlemleri</a></li>
-                <li><a href="#guvenlik">Güvenlik</a></li>
-                <li><a href="#yardimci-siniflar">Yardımcı Sınıflar</a></li>
-                <li><a href="#hata-ayiklama">Hata Ayıklama</a></li>
-                <li><a href="#session-islemleri">Session İşlemleri</a></li>
-                <li><a href="#login-islemleri">Login İşlemleri</a></li>
-                <li><a href="#blueprint">Blueprint</a></li>
-                <li><a href="#api">API</a></li>
-            </ul>
-        </nav>
-    </aside>
-
-    <main class="main-content">
-        <section id="genel-bakis" class="content-section">
-            <h2>Genel Bakış</h2>
-            <p>Amandiyim, modern ve güvenli bir web uygulaması geliştirmek için tasarlanmış bir PHP framework'üdür.</p>
-            
-            <h3>Özellikler</h3>
-            <ul>
-                <li>MVC (Model-View-Controller) mimarisi</li>
-                <li>Güvenli form işlemleri</li>
-                <li>Veritabanı yönetimi</li>
-                <li>Oturum yönetimi</li>
-                <li>CSRF koruması</li>
-                <li>XSS koruması</li>
-            </ul>
-        </section>
-
-        <section id="kurulum" class="content-section">
-            <h2>Kurulum</h2>
-            <p>Projeyi yerel ortamınıza kurmak için aşağıdaki adımları takip edin:</p>
-
-            <div class="code-block">
-                <code>
-                    git clone https://github.com/kullanici/amandiyim.git<br>
-                    cd amandiyim<br>
-                    composer install<br>
-                    cp .env.example .env<br>
-                    php -S localhost:3000
-                </code>
-            </div>
-
-            <div class="note">
-                <strong>Not:</strong> Composer'ın sisteminizde kurulu olduğundan emin olun.
-            </div>
-        </section>
-
-        <section id="veritabani" class="content-section">
-            <h2>Veritabanı İşlemleri</h2>
-            <p>Veritabanı işlemleri için Database sınıfını kullanabilirsiniz:</p>
-
-            <div class="code-block">
-                <code>
-                    $db = Database::getInstance();<br><br>
-                    // Veri ekleme<br>
-                    $db->insert('users', [<br>
-                    &nbsp;&nbsp;'name' => 'John Doe',<br>
-                    &nbsp;&nbsp;'email' => 'john@example.com'<br>
-                    ]);<br><br>
-                    // Veri sorgulama<br>
-                    $user = $db->fetch("SELECT * FROM users WHERE id = ?", [1]);
-                </code>
-            </div>
-        </section>
-
-        <section id="form-islemleri" class="content-section">
-            <h2>Form İşlemleri</h2>
-            <p>Form işlemleri için Form sınıfını kullanabilirsiniz:</p>
-
-            <div class="code-block">
-                <code>
-                    $form = new Form();<br><br>
-                    $form->addField('name', 'text', [<br>
-                    &nbsp;&nbsp;'required' => true,<br>
-                    &nbsp;&nbsp;'class' => 'form-control'<br>
-                    ]);<br><br>
-                    echo $form->render();
-                </code>
-            </div>
-
-            <div class="warning">
-                <strong>Önemli:</strong> Form işlemlerinde CSRF token'ı otomatik olarak eklenir.
-            </div>
-        </section>
-
-        <section id="guvenlik" class="content-section">
-            <h2>Güvenlik</h2>
-            <p>Framework'ün güvenlik özellikleri:</p>
-
-            <h3>CSRF Koruması</h3>
-            <div class="code-block">
-                <code>
-                    // Token oluşturma<br>
-                    $token = Csrf::generateToken();<br><br>
-                    // Token doğrulama<br>
-                    if (Csrf::validateToken($_POST['_token'])) {<br>
-                    &nbsp;&nbsp;// İşlem güvenli<br>
-                    }
-                </code>
-            </div>
-
-            <h3>XSS Koruması</h3>
-            <div class="code-block">
-                <code>
-                    // Veriyi güvenli hale getirme<br>
-                    $safeData = Helper::escape($userInput);
-                </code>
-            </div>
-        </section>
-
-        <section id="yardimci-siniflar" class="content-section">
-            <h2>Yardımcı Sınıflar</h2>
-            <p>Framework'de kullanılan yardımcı sınıflar:</p>
-
-            <h3>Helper Sınıfı</h3>
-            <div class="code-block">
-                <code>
-                    // URL oluşturma<br>
-                    $url = Helper::router('login.php');<br><br>
-                    // Güvenli çıktı<br>
-                    echo Helper::escape($data);<br><br>
-                    // Slug oluşturma<br>
-                    $slug = Helper::slug('Merhaba Dünya');
-                </code>
-            </div>
-        </section>
-
-        <section id="hata-ayiklama" class="content-section">
-            <h2>Hata Ayıklama</h2>
-            <p>Hata ayıklama için debug modunu kullanabilirsiniz:</p>
-
-            <div class="code-block">
-                <code>
-                    // Debug modunu aktifleştirme<br>
-                    $db->debug = true;<br><br>
-                    // Hata mesajlarını görüntüleme<br>
-                    if (Helper::isDebug()) {<br>
-                    &nbsp;&nbsp;echo $error->getMessage();<br>
-                    }
-                </code>
-            </div>
-
-            <div class="note">
-                <strong>Not:</strong> Production ortamında debug modunu kapatmayı unutmayın.
-            </div>
-        </section>
-
-        <section id="session-islemleri" class="content-section">
-            <h2>Session İşlemleri</h2>
-            <p>Session yönetimi için Session sınıfını kullanabilirsiniz:</p>
-
-            <h3>Session Başlatma</h3>
-            <div class="code-block">
-                <code>
-                    // Session instance'ını al<br>
-                    $session = Session::getInstance();<br><br>
-                    // Session otomatik olarak başlatılır<br>
-                    // Güvenli session ayarları yapılandırılır
-                </code>
-            </div>
-
-            <h3>Temel Session İşlemleri</h3>
-            <div class="code-block">
-                <code>
-                    // Veri ekleme<br>
-                    $session->set('user_id', 1);<br><br>
-                    // Veri alma<br>
-                    $userId = $session->get('user_id');<br><br>
-                    // Veri silme<br>
-                    $session->delete('user_id');<br><br>
-                    // Veri kontrolü<br>
-                    if ($session->has('user_id')) {<br>
-                    &nbsp;&nbsp;// Veri mevcut<br>
-                    }
-                </code>
-            </div>
-
-            <h3>Flash Mesajları</h3>
-            <div class="code-block">
-                <code>
-                    // Flash mesajı ekleme<br>
-                    $session->flash('success', 'İşlem başarılı!');<br><br>
-                    // Flash mesajı alma<br>
-                    $success = $session->getFlash('success');<br><br>
-                    // Tüm flash mesajlarını alma<br>
-                    $allFlash = $session->getAllFlash();
-                </code>
-            </div>
-
-            <h3>Form Verileri</h3>
-            <div class="code-block">
-                <code>
-                    // Form verilerini saklama<br>
-                    $session->storeOld($_POST);<br><br>
-                    // Eski form verilerini alma<br>
-                    $email = $session->old('email');<br><br>
-                    // Tüm eski verileri alma<br>
-                    $allOld = $session->getAllOld();
-                </code>
-            </div>
-
-            <h3>Hata ve Başarı Mesajları</h3>
-            <div class="code-block">
-                <code>
-                    // Hata mesajı ekleme<br>
-                    $session->addError('Geçersiz şifre');<br><br>
-                    // Hata mesajlarını alma<br>
-                    $errors = $session->getErrors();<br><br>
-                    // Başarı mesajı ekleme<br>
-                    $session->setSuccess('Kayıt başarılı!');<br><br>
-                    // Başarı mesajını alma<br>
-                    $success = $session->getSuccess();
-                </code>
-            </div>
-
-            <h3>Session Güvenliği</h3>
-            <div class="code-block">
-                <code>
-                    // Session ID'yi yenileme<br>
-                    $session->regenerate();<br><br>
-                    // Session'ı temizleme<br>
-                    $session->clear();<br><br>
-                    // Session süresini kontrol etme<br>
-                    if ($session->isExpired(1800)) {<br>
-                    &nbsp;&nbsp;// Session süresi dolmuş<br>
-                    }
-                </code>
-            </div>
-
-            <div class="note">
-                <strong>Not:</strong> Session sınıfı singleton pattern kullanır ve otomatik olarak güvenli session ayarlarını yapılandırır.
-            </div>
-
-            <div class="warning">
-                <strong>Önemli:</strong> Session verilerini hassas bilgilerle doldurmaktan kaçının ve session süresini uygun şekilde ayarlayın.
-            </div>
-        </section>
-
-        <section id="form-veri-isleme" class="content-section">
-            <h2>Form Veri İşleme</h2>
-            <p>Form verilerini işlemek için birkaç yöntem kullanabilirsiniz:</p>
-
-            <h3>POST Verilerini Alma</h3>
-            <div class="code-block">
-                <code>
-                    // POST verilerini doğrudan alma<br>
-                    $email = $_POST['email'] ?? null;<br>
-                    $password = $_POST['password'] ?? null;<br><br>
-                    // Tüm POST verilerini alma<br>
-                    $data = $_POST;<br><br>
-                    // Belirli bir veriyi kontrol ederek alma<br>
-                    if (isset($_POST['email']) && !empty($_POST['email'])) {<br>
-                    &nbsp;&nbsp;$email = $_POST['email'];<br>
-                    } else {<br>
-                    &nbsp;&nbsp;$errors[] = 'E-posta adresi gereklidir.';<br>
-                    }
-                </code>
-            </div>
-
-            <h3>Form Sınıfı ile Veri Alma</h3>
-            <div class="code-block">
-                <code>
-                    // Form sınıfı oluşturma<br>
-                    $form = new Form();<br><br>
-                    // Form alanlarını tanımlama<br>
-                    $form->addField('email', 'email', [<br>
-                    &nbsp;&nbsp;'required' => true,<br>
-                    &nbsp;&nbsp;'label' => 'E-posta Adresi'<br>
-                    ]);<br><br>
-                    $form->addField('password', 'password', [<br>
-                    &nbsp;&nbsp;'required' => true,<br>
-                    &nbsp;&nbsp;'label' => 'Şifre'<br>
-                    ]);<br><br>
-                    // Form gönderildiğinde<br>
-                    if ($_SERVER['REQUEST_METHOD'] === 'POST') {<br>
-                    &nbsp;&nbsp;$data = $form->getData();<br>
-                    &nbsp;&nbsp;$errors = $form->getErrors();<br><br>
-                    &nbsp;&nbsp;if (empty($errors)) {<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;// Form verileri geçerli<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;$email = $data['email'];<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;$password = $data['password'];<br>
-                    &nbsp;&nbsp;}<br>
-                    }
-                </code>
-            </div>
-
-            <h3>Form Verilerini Doğrulama</h3>
-            <div class="code-block">
-                <code>
-                    // Form verilerini doğrulama<br>
-                    $validator = new Validator();<br><br>
-                    $validator->setRules([<br>
-                    &nbsp;&nbsp;'email' => 'required|email',<br>
-                    &nbsp;&nbsp;'password' => 'required|min:6'<br>
-                    ]);<br><br>
-                    if ($validator->validate($_POST)) {<br>
-                    &nbsp;&nbsp;$data = $validator->getData();<br>
-                    } else {<br>
-                    &nbsp;&nbsp;$errors = $validator->getErrors();<br>
-                    }
-                </code>
-            </div>
-
-            <h3>Form Verilerini Session'da Saklama</h3>
-            <div class="code-block">
-                <code>
-                    // Form verilerini session'da saklama<br>
-                    $session = Session::getInstance();<br><br>
-                    if ($_SERVER['REQUEST_METHOD'] === 'POST') {<br>
-                    &nbsp;&nbsp;if (empty($errors)) {<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;// Veriler geçerli, işleme devam et<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;$session->set('user_email', $_POST['email']);<br>
-                    &nbsp;&nbsp;} else {<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;// Hatalar varsa form verilerini sakla<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;$session->storeOld($_POST);<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;$session->addError('Lütfen formu düzeltin.');<br>
-                    &nbsp;&nbsp;}<br>
-                    }<br><br>
-                    // Eski form verilerini alma<br>
-                    $email = $session->old('email');<br>
-                    $password = $session->old('password');
-                </code>
-            </div>
-
-            <div class="note">
-                <strong>Not:</strong> Form verilerini işlerken her zaman güvenlik kontrollerini yapın ve XSS koruması uygulayın.
-            </div>
-
-            <div class="warning">
-                <strong>Önemli:</strong> Hassas verileri (şifre gibi) session'da saklamaktan kaçının ve her zaman güvenli bir şekilde işleyin.
-            </div>
-        </section>
-
-        <section id="guvenli-post-veri" class="content-section">
-            <h2>Güvenli POST Veri İşleme</h2>
-            <p>POST verilerini güvenli bir şekilde işlemek için aşağıdaki yöntemleri kullanabilirsiniz:</p>
-
-            <h3>Helper Sınıfı ile Güvenli Veri Alma</h3>
-            <div class="code-block">
-                <code>
-                    // POST verilerini güvenli bir şekilde alma<br>
-                    $email = Helper::post('email');<br>
-                    $password = Helper::post('password');<br><br>
-                    // Varsayılan değer ile alma<br>
-                    $name = Helper::post('name', 'Misafir');<br><br>
-                    // Belirli bir veriyi kontrol ederek alma<br>
-                    if (Helper::hasPost('email')) {<br>
-                    &nbsp;&nbsp;$email = Helper::post('email');<br>
-                    } else {<br>
-                    &nbsp;&nbsp;$errors[] = 'E-posta adresi gereklidir.';<br>
-                    }
-                </code>
-            </div>
-
-            <h3>XSS Koruması ile Veri Alma</h3>
-            <div class="code-block">
-                <code>
-                    // XSS korumalı veri alma<br>
-                    $safeData = Helper::escape($_POST['user_input']);<br><br>
-                    // HTML içeriğini güvenli hale getirme<br>
-                    $safeHtml = Helper::sanitizeHtml($_POST['html_content']);<br><br>
-                    // URL'yi güvenli hale getirme<br>
-                    $safeUrl = Helper::sanitizeUrl($_POST['url']);
-                </code>
-            </div>
-
-            <h3>Form Sınıfı ile Güvenli Veri İşleme</h3>
-            <div class="code-block">
-                <code>
-                    // Form sınıfı oluşturma<br>
-                    $form = new Form();<br><br>
-                    // Form alanlarını tanımlama<br>
-                    $form->addField('email', 'email', [<br>
-                    &nbsp;&nbsp;'required' => true,<br>
-                    &nbsp;&nbsp;'sanitize' => true,<br>
-                    &nbsp;&nbsp;'validate' => 'email'<br>
-                    ]);<br><br>
-                    // Form verilerini güvenli bir şekilde alma<br>
-                    if ($_SERVER['REQUEST_METHOD'] === 'POST') {<br>
-                    &nbsp;&nbsp;$data = $form->getData();<br>
-                    &nbsp;&nbsp;$errors = $form->getErrors();<br><br>
-                    &nbsp;&nbsp;if (empty($errors)) {<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;// Veriler güvenli ve geçerli<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;$email = $data['email'];<br>
-                    &nbsp;&nbsp;}<br>
-                    }
-                </code>
-            </div>
-
-            <h3>Validator Sınıfı ile Veri Doğrulama</h3>
-            <div class="code-block">
-                <code>
-                    // Validator sınıfı oluşturma<br>
-                    $validator = new Validator();<br><br>
-                    // Doğrulama kuralları tanımlama<br>
-                    $validator->setRules([<br>
-                    &nbsp;&nbsp;'email' => 'required|email|max:255',<br>
-                    &nbsp;&nbsp;'password' => 'required|min:6|max:20',<br>
-                    &nbsp;&nbsp;'username' => 'required|alpha_num|min:3|max:20'<br>
-                    ]);<br><br>
-                    // Verileri doğrulama<br>
-                    if ($validator->validate($_POST)) {<br>
-                    &nbsp;&nbsp;$data = $validator->getData();<br>
-                    } else {<br>
-                    &nbsp;&nbsp;$errors = $validator->getErrors();<br>
-                    }
-                </code>
-            </div>
-
-            <div class="note">
-                <strong>Not:</strong> Tüm kullanıcı girdilerini işlerken her zaman güvenlik kontrollerini yapın ve XSS koruması uygulayın.
-            </div>
-
-            <div class="warning">
-                <strong>Önemli:</strong> Hassas verileri (şifre gibi) her zaman güvenli bir şekilde işleyin ve asla düz metin olarak saklamayın.
-            </div>
-        </section>
-
-        <section id="login-islemleri" class="content-section">
-            <h2>Login İşlemleri</h2>
-            <p>Kullanıcı girişi ve oturum yönetimi için Login sınıfını kullanabilirsiniz:</p>
-
-            <h3>Login Sınıfını Başlatma</h3>
-            <div class="code-block">
-                <code>
-                    // Login sınıfını başlatma<br>
-                    $login = Login::getInstance();
-                </code>
-            </div>
-
-            <h3>Kullanıcı Girişi</h3>
-            <div class="code-block">
-                <code>
-                    // POST verilerini güvenli bir şekilde alma<br>
-                    $email = Helper::post('email');<br>
-                    $password = Helper::post('password');<br><br>
-                    // Giriş işlemi<br>
-                    if ($login->login($email, $password)) {<br>
-                    &nbsp;&nbsp;// Başarılı giriş<br>
-                    &nbsp;&nbsp;header('Location: /dashboard');<br>
-                    &nbsp;&nbsp;exit;<br>
-                    } else {<br>
-                    &nbsp;&nbsp;// Hata mesajlarını al<br>
-                    &nbsp;&nbsp;$errors = $login->getErrors();<br>
-                    }
-                </code>
-            </div>
-
-            <h3>Oturum Kontrolü</h3>
-            <div class="code-block">
-                <code>
-                    // Kullanıcı giriş yapmış mı kontrol etme<br>
-                    if ($login->isLoggedIn()) {<br>
-                    &nbsp;&nbsp;// Kullanıcı bilgilerini al<br>
-                    &nbsp;&nbsp;$user = $login->getUser();<br>
-                    &nbsp;&nbsp;echo "Hoş geldiniz, " . $user['name'];<br>
-                    } else {<br>
-                    &nbsp;&nbsp;// Giriş yapılmamış<br>
-                    &nbsp;&nbsp;header('Location: /login');<br>
-                    &nbsp;&nbsp;exit;<br>
-                    }
-                </code>
-            </div>
-
-            <h3>Çıkış Yapma</h3>
-            <div class="code-block">
-                <code>
-                    // Çıkış yapma<br>
-                    $login->logout();<br><br>
-                    // Ana sayfaya yönlendirme<br>
-                    header('Location: /');<br>
-                    exit;
-                </code>
-            </div>
-
-            <h3>Güvenlik Özellikleri</h3>
-            <ul>
-                <li>XSS koruması</li>
-                <li>SQL Injection koruması</li>
-                <li>Brute force koruması (5 başarısız denemeden sonra 15 dakika kilit)</li>
-                <li>Session güvenliği</li>
-                <li>Şifre doğrulama (password_verify)</li>
-            </ul>
-
-            <h3>Veri Doğrulama</h3>
-            <ul>
-                <li>E-posta formatı kontrolü</li>
-                <li>Şifre uzunluğu kontrolü</li>
-                <li>Boş alan kontrolü</li>
-                <li>Hesap aktiflik kontrolü</li>
-            </ul>
-
-            <div class="note">
-                <strong>Not:</strong> Login sınıfı singleton pattern kullanır, bu yüzden her zaman getInstance() metodu ile başlatılmalıdır.
-            </div>
-
-            <div class="warning">
-                <strong>Önemli:</strong> Hassas verileri (şifre gibi) her zaman güvenli bir şekilde işleyin ve asla düz metin olarak saklamayın.
-            </div>
-        </section>
-
-        <section id="blueprint" class="content-section">
-            <h2>Blueprint</h2>
-            <p>Blueprint sınıfı, veritabanı tablolarını oluşturmak için kullanılan bir yapı sağlar. Bu sınıf, tablo oluşturma işlemlerini daha kolay ve okunabilir hale getirir.</p>
-
-            <h3>Kullanım</h3>
-            <div class="code-block">
-
-         
-            <pre><code clas>
-$blueprint = new Blueprint('users');
-$blueprint->id()
-          ->string('name')
-          ->string('email')
-          ->timestamps();
-            </code></pre>
-        </div>
-            <h3>Mevcut Metodlar</h3>
-            <ul>
-                <li><code>id()</code> - Otomatik artan birincil anahtar kolonu ekler</li>
-                <li><code>string($name, $length = 255)</code> - VARCHAR tipinde kolon ekler</li>
-                <li><code>text($name)</code> - TEXT tipinde kolon ekler</li>
-                <li><code>integer($name)</code> - INT tipinde kolon ekler</li>
-                <li><code>decimal($name, $precision = 10, $scale = 2)</code> - DECIMAL tipinde kolon ekler</li>
-                <li><code>enum($name, $values)</code> - ENUM tipinde kolon ekler</li>
-                <li><code>boolean($name)</code> - BOOLEAN tipinde kolon ekler</li>
-                <li><code>timestamp($name)</code> - TIMESTAMP tipinde kolon ekler</li>
-                <li><code>foreignKey($column, $referenceTable, $referenceColumn = 'id')</code> - Foreign key ekler</li>
-                <li><code>nullable()</code> - Son eklenen kolonu NULL olabilir yapar</li>
-                <li><code>default($value)</code> - Son eklenen kolona varsayılan değer atar</li>
-                <li><code>unique()</code> - Son eklenen kolonu benzersiz yapar</li>
-                <li><code>timestamps($value = true)</code> - created_at ve updated_at kolonlarını ekler</li>
-                <li><code>primaryKey($columns)</code> - Birincil anahtar kolonlarını belirler</li>
-            </ul>
-
-            <h3>Örnek Kullanım</h3>
-            <div class="code-block">
-
-           
-            <pre><code>
-$blueprint = new Blueprint('products');
-$blueprint->id()
-          ->string('name')
-          ->text('description')
-          ->decimal('price', 10, 2)
-          ->boolean('is_active')
-          ->foreignKey('category_id', 'categories')
-          ->timestamps();
-            </code></pre>
-        </div>
-            <h3>Oluşturulan SQL</h3>
-            <div class="code-block">
-                <code>
-CREATE TABLE IF NOT EXISTS `products` (
-    `id` INT AUTO_INCREMENT NOT NULL,
-    `name` VARCHAR(255) NOT NULL,
-    `description` TEXT NOT NULL,
-    `price` DECIMAL(10, 2) NOT NULL,
-    `is_active` BOOLEAN NOT NULL,
-    `category_id` INT NOT NULL,
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
-    FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-                </code>
-            </div>
-        </section>
-
-        <section id="api" class="content-section">
-            <h2>API</h2>
-            <p>API endpoint'leri ve kullanımı hakkında bilgiler.</p>
-        </section>
-    </main>
+    </div>
 </body>
 </html> 

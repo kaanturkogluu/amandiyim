@@ -207,10 +207,7 @@ $stores = $stores['data'];
                         <label>Mağaza Telefonu</label>
                         <input type="tel" name="store_phone" required>
                     </div>
-                    <div class="form-group">
-                        <label>Çalışma Saatleri</label>
-                        <input type="text" name="work_time" value="09:00 - 18:00" required>
-                    </div>
+                   
                     <div class="form-group">
                         <label>Mağaza Logosu</label>
                         <input type="file" name="store_logo" accept="image/*">
@@ -279,7 +276,7 @@ $stores = $stores['data'];
                     <h3>Diğer Ayarlar</h3>
                     <div class="form-group">
                         <label>Başlangıç Kredisi</label>
-                        <input type="number" name="store_credits" value="10000" required>
+                        <input type="number" name="store_credits" value="2800" required>
                     </div>
                     <div class="form-group">
                         <label>Durum</label>
@@ -315,7 +312,7 @@ $stores = $stores['data'];
                 <!-- Mağaza Bilgileri -->
 
                 <input type="hidden" name="action" value="update">
-                <input type="text" name="update_store_id" id="update_store_id">
+                <input type="hidden" name="update_store_id" id="update_store_id">
                 <?php
                 echo $csrf->getTokenField();
                 ?>
@@ -341,10 +338,7 @@ $stores = $stores['data'];
                         <label>Mağaza Telefonu</label>
                         <input type="tel" name="update_store_phone" required>
                     </div>
-                    <div class="form-group">
-                        <label>Çalışma Saatleri</label>
-                        <input type="text" name="update_work_time" value="09:00 - 18:00" required>
-                    </div>
+                 
                     <div class="form-group">
                         <label>Mağaza Logosu</label>
                         <input type="file" name="update_store_logo" accept="image/*">

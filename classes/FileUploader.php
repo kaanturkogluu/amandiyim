@@ -4,40 +4,77 @@ class FileUploader
     private $baseUpload = __DIR__."/../uploads/";
     const DEFAULT_ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif','image/webp'];
     const DEFAULT_MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+    private $uploadDir;
+    private $allowedTypes;
+    private $maxFileSize;
 
-    // Upload function
-    public function uploadPhoto($file, $uploadDir, $maxSize = self::DEFAULT_MAX_SIZE, $allowedTypes = self::DEFAULT_ALLOWED_TYPES)
-    {
-        // Define the full upload directory path
-        $uploadDir = $this->baseUpload. '/images/' . $uploadDir;
+    public function __construct() {
+        $this->uploadDir = __DIR__ . '/../uploads/images/';
+        $this->allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        $this->maxFileSize = 5 * 1024 * 1024; // 5MB
+    }
 
-        // Check if file was uploaded without errors
-        if ($file['error'] !== UPLOAD_ERR_OK) {
-            return 'Error during file upload: ' . $this->getUploadErrorMessage($file['error']);
-        }
-
-        // Check if file type is allowed
-        if (!in_array($file['type'], $allowedTypes)) {
-            return 'Invalid file type. Only JPG, PNG, and GIF are allowed.';
-        }
-
-        // Check if file size exceeds the maximum allowed size
-        if ($file['size'] > $maxSize) {
-            return 'File exceeds the maximum allowed size of ' . ($maxSize / 1024 / 1024) . ' MB.';
-        }
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
-        }
-        // Generate a unique name for the uploaded file
-        $unique_name = uniqid('', true) . '.' . pathinfo($file['name'], PATHINFO_EXTENSION);
-
-        // Try moving the uploaded file to the destination directory
-        if (move_uploaded_file($file['tmp_name'], $uploadDir . '/' . $unique_name)) {
-            return $unique_name; // Return the unique file name
+    private function checkAndCreateDirectory($path) {
+        if (!file_exists($path)) {
+            // Dizin oluştur ve izinleri ayarla (755)
+            if (!mkdir($path, 0755, true)) {
+                throw new Exception('Dizin oluşturulamadı: ' . $path);
+            }
         } else {
-            return 'Failed to move uploaded file. Check directory permissions.';
+            // Dizin var ama yazma izni kontrol et
+            if (!is_writable($path)) {
+                // İzinleri güncelle (755)
+                if (!chmod($path, 0755)) {
+                    throw new Exception('Dizin izinleri güncellenemedi: ' . $path);
+                }
+            }
         }
     }
+
+    // Upload function
+    public function uploadPhoto($file, $subDir = '')
+    {
+        try {
+            // Ana upload dizinini kontrol et
+            $this->checkAndCreateDirectory($this->uploadDir);
+
+            // Alt dizini oluştur
+            $uploadPath = $this->uploadDir . $subDir . '/';
+            $this->checkAndCreateDirectory($uploadPath);
+
+            // Dosya tipini kontrol et
+            if (!in_array($file['type'], $this->allowedTypes)) {
+                throw new Exception('Geçersiz dosya tipi. Sadece JPEG, PNG, GIF ve WebP formatları desteklenmektedir.');
+            }
+
+            // Dosya boyutunu kontrol et
+            if ($file['size'] > $this->maxFileSize) {
+                throw new Exception('Dosya boyutu çok büyük. Maksimum 5MB olmalıdır.');
+            }
+
+            // Benzersiz dosya adı oluştur
+            $fileName = uniqid() . '_' . time() . '.' . pathinfo($file['name'], PATHINFO_EXTENSION);
+            $targetPath = $uploadPath . $fileName;
+
+            // Dosyayı yükle
+            if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
+                throw new Exception('Dosya yüklenemedi.');
+            }
+
+            // Yüklenen dosyanın izinlerini ayarla (644)
+            chmod($targetPath, 0644);
+
+            return $fileName;
+
+        } catch (Exception $e) {
+            // Hata durumunda yüklenen dosyayı temizle
+            if (isset($targetPath) && file_exists($targetPath)) {
+                unlink($targetPath);
+            }
+            throw $e;
+        }
+    }
+
     public function uploadMultipleImages($files, $uploadDir)
     {
         $uploadedImages = [];
@@ -71,6 +108,7 @@ class FileUploader
 
         return $uploadedImages; // Tüm yüklenen dosyaları döndür
     }
+
     // Helper function to translate error codes into readable messages
     private function getUploadErrorMessage($errorCode)
     {
@@ -95,19 +133,121 @@ class FileUploader
     }
 
 
-    public function deletePhoto($file, $uploadDir)
+    public function deletePhoto($fileName, $subDir = '')
     {
-
-        $path = $this->baseUpload.  $uploadDir ."/". $file;
-        if (file_exists($path)) {
-            unlink($path);
-            return true;
+        $filePath = $this->uploadDir . $subDir . '/' . $fileName;
+        if (file_exists($filePath)) {
+            return unlink($filePath);
         }
         return false;
     }
   
-    
+    /**
+     * Resmi sıkıştırır ve yeniden boyutlandırır
+     * 
+     * @param string $source Kaynak dosya yolu
+     * @param string $destination Hedef dosya yolu
+     * @param int $quality Kalite değeri (0-100)
+     * @return bool İşlem başarılı ise true, değilse false
+     */
+    public function compressImage($sourcePath, $destinationPath, $quality = 80)
+    {
+        try {
+            // Kaynak dosyanın varlığını ve okunabilirliğini kontrol et
+            if (!file_exists($sourcePath) || !is_readable($sourcePath)) {
+                throw new Exception('Kaynak dosya bulunamadı veya okunamıyor.');
+            }
 
+            // Hedef dizinin yazılabilir olduğunu kontrol et
+            $destinationDir = dirname($destinationPath);
+            $this->checkAndCreateDirectory($destinationDir);
+
+            // Görsel tipini belirle
+            $imageInfo = getimagesize($sourcePath);
+            if ($imageInfo === false) {
+                throw new Exception('Geçersiz görsel dosyası.');
+            }
+
+            // Orijinal görseli yükle
+            $image = null;
+            switch ($imageInfo[2]) {
+                case IMAGETYPE_JPEG:
+                    $image = imagecreatefromjpeg($sourcePath);
+                    break;
+                case IMAGETYPE_PNG:
+                    $image = imagecreatefrompng($sourcePath);
+                    break;
+                case IMAGETYPE_GIF:
+                    $image = imagecreatefromgif($sourcePath);
+                    break;
+                case IMAGETYPE_WEBP:
+                    $image = imagecreatefromwebp($sourcePath);
+                    break;
+                default:
+                    throw new Exception('Desteklenmeyen görsel formatı.');
+            }
+
+            if (!$image) {
+                throw new Exception('Görsel yüklenemedi.');
+            }
+
+            // Orijinal boyutları al
+            $width = imagesx($image);
+            $height = imagesy($image);
+
+            // Maksimum boyutları ayarla
+            $maxWidth = 1920;
+            $maxHeight = 1080;
+
+            // En-boy oranını koru
+            if ($width > $height) {
+                if ($width > $maxWidth) {
+                    $height = round($height * ($maxWidth / $width));
+                    $width = $maxWidth;
+                }
+            } else {
+                if ($height > $maxHeight) {
+                    $width = round($width * ($maxHeight / $height));
+                    $height = $maxHeight;
+                }
+            }
+
+            // Yeni görsel oluştur
+            $newImage = imagecreatetruecolor($width, $height);
+
+            // PNG ve WebP için şeffaflığı koru
+            if ($imageInfo[2] == IMAGETYPE_PNG || $imageInfo[2] == IMAGETYPE_WEBP) {
+                imagealphablending($newImage, false);
+                imagesavealpha($newImage, true);
+                $transparent = imagecolorallocatealpha($newImage, 255, 255, 255, 127);
+                imagefilledrectangle($newImage, 0, 0, $width, $height, $transparent);
+            }
+
+            // Görseli yeniden boyutlandır
+            imagecopyresampled($newImage, $image, 0, 0, 0, 0, $width, $height, imagesx($image), imagesy($image));
+
+            // WebP formatında kaydet
+            if (!imagewebp($newImage, $destinationPath, $quality)) {
+                throw new Exception('Görsel kaydedilemedi.');
+            }
+
+            // Belleği temizle
+            imagedestroy($image);
+            imagedestroy($newImage);
+
+            // Yeni dosyanın izinlerini ayarla (644)
+            chmod($destinationPath, 0644);
+
+            return true;
+
+        } catch (Exception $e) {
+            // Hata durumunda oluşturulan dosyayı temizle
+            if (isset($destinationPath) && file_exists($destinationPath)) {
+                unlink($destinationPath);
+            }
+            throw $e;
+        }
+    }
 }
 // $uploader = new FileUploader();
 // $uploadResult = $uploader->uploadPhoto($_FILES['previewimage'], 'products-preview/');

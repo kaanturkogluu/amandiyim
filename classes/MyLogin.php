@@ -225,6 +225,7 @@ class MyLogin
         $this->session->set('user_type', $userType);
         $this->session->set('is_logged_in', true);
         $this->session->set('last_activity', time());
+       
     }
 
     /**

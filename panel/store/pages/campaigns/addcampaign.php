@@ -1,6 +1,17 @@
 <?php
 require_once __DIR__ . '/../../includes/header.php';
 
+require_once __DIR__ . "/../../../../classes/CampaignsSubCategories.php";
+
+$subcategories = new CampaignsSubCategories();
+
+$storeCategoryId = $_SESSION['user']['store_category'];
+$altkategoriler = $subcategories->getSelectedColumns(['id', 'sub_category_name', 'sub_description'], ['store_categories_id' => $storeCategoryId]);
+
+$errors = $session->getFlash('error');
+
+
+
 ?>
 
 <script>
@@ -34,45 +45,227 @@ require_once __DIR__ . '/../../includes/header.php';
         <h1 style="text-align: center;">Kampanya Ekle</h1>
     </div>
 
+    <?php if (!empty($errors) && is_array($errors)): ?>
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                <?php foreach ($errors as $error): ?>
+                    <li><?= htmlspecialchars($error) ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
 
-    <form id="campaignForm" class="campaign-form" action="<?= Helper::controller('campaignController') ?>" method="post" >
+    <form id="campaignForm" class="campaign-form" action="<?= Helper::url('panel/store/pages/campaigns/preview.php') ?>"
+        method="post" enctype="multipart/form-data">
         <?php echo $csrf->getTokenField(); ?>
         <div class="form-section">
             <h3>Kampanya Bilgileri</h3>
             <div class="form-group">
                 <label for="campaign_title">Kampanya Başlığı</label>
                 <input type="text" id="campaign_title" name="campaign_title" class="form-control" required
-                    placeholder="Mutfak Alışverişi">
+                    maxlength="255" placeholder="Mutfak Alışverişi"
+                    value="<?= isset($_SESSION['campaign_form_data']['campaign_title']) ? htmlspecialchars($_SESSION['campaign_form_data']['campaign_title']) : '' ?>">
+                <div class="char-counter">
+                    <span id="titleCharCount">0</span>/255
+                </div>
             </div>
 
             <div class="form-group">
-                <label for="campaign_description">Kampanya Açıklaması</label>
+                <label for="campaign_description">Kampanya Açıklaması (Kısa Acıklamaları Giriniz)</label>
                 <textarea id="campaign_description" name="campaign_description" class="form-control" rows="4" required
-                    placeholder="Mutfak Alışverişiniz için geçerli ürünlerde %20 indirim"></textarea>
+                    maxlength="255"
+                    placeholder="Mutfak Alışverişiniz için geçerli ürünlerde %20 indirim"><?= isset($_SESSION['campaign_form_data']['campaign_description']) ? htmlspecialchars($_SESSION['campaign_form_data']['campaign_description']) : '' ?></textarea>
+                <div class="char-counter">
+                    <span id="descriptionCharCount">0</span>/255
+                </div>
             </div>
+
+            <div class="form-group">
+                <label for="">Kampanya Türünüzü Seçin</label>
+                <select name="campaing_sub_id" id="campaing_sub_id" class="form-control" required>
+                    <option value="">Seçiniz</option>
+                    <?php
+                    foreach ($altkategoriler as $ak) {
+                        $selected = (isset($_SESSION['campaign_form_data']['campaing_sub_id']) && $_SESSION['campaign_form_data']['campaing_sub_id'] == $ak['id']) ? 'selected' : '';
+                        ?>
+                        <option value="<?= $ak['id'] ?>" <?= $selected ?>> <?= $ak['sub_category_name'] ?></option>
+                        <?php
+                    }
+                    ?>
+                </select>
+                <label for="">Alt Kampanya Türünüzü Seçin (Opsiyonel)</label>
+                <select name="campaing_sub_sub_id" id="sub_sub_id" class="form-control">
+                    <option value="">Seçiniz</option>
+                </select>
+            </div>
+            <script>
+                document.getElementById('campaing_sub_id').addEventListener('change', async function () {
+                    const subId = this.value;
+                    const subSubSelect = document.getElementById('sub_sub_id');
+
+                    // Select'i temizle
+                    subSubSelect.innerHTML = '<option value="">Seçiniz</option>';
+
+                    if (!subId) {
+                        subSubSelect.disabled = true;
+                        return;
+                    }
+
+                    subSubSelect.disabled = false;
+
+                    try {
+                        const response = await fetch('<?= Helper::controller('subsubcategoriesController') ?>?action=getBySubId&sub_id=' + subId);
+                        const data = await response.json();
+
+                        if (data.success && data.data) {
+                            data.data.forEach(item => {
+                                const option = document.createElement('option');
+                                option.value = item.id;
+                                option.textContent = item.sub_sub_name;
+                                subSubSelect.appendChild(option);
+                            });
+                        } else {
+                            console.error('Veri alınamadı:', data.message);
+                        }
+                    } catch (error) {
+                        console.error('Hata:', error);
+                    }
+                });
+
+                // Form gönderilmeden önce kontrol
+                document.getElementById('campaignForm').addEventListener('submit', function (e) {
+                    const subId = document.getElementById('campaing_sub_id').value;
+
+                    if (!subId) {
+                        e.preventDefault();
+                        alert('Lütfen kampanya türünü seçiniz!');
+                        return;
+                    }
+                });
+            </script>
 
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="campaign_start_date">Başlangıç Tarihi</label>
                         <input type="datetime-local" id="campaign_start_date" name="campaign_start_date"
-                            class="form-control" required>
+                            class="form-control" required
+                            value="<?= isset($_SESSION['campaign_form_data']['campaign_start_date']) ? htmlspecialchars($_SESSION['campaign_form_data']['campaign_start_date']) : '' ?>">
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="campaign_end_date">Bitiş Tarihi</label>
                         <input type="datetime-local" id="campaign_end_date" name="campaign_end_date"
-                            class="form-control" required>
+                            class="form-control" required
+                            value="<?= isset($_SESSION['campaign_form_data']['campaign_end_date']) ? htmlspecialchars($_SESSION['campaign_form_data']['campaign_end_date']) : '' ?>">
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="form-section">
+            <style>
+                .form-section {
+                    background: #fff;
+                    padding: 25px;
+                    border-radius: 12px;
+                    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+                    margin-bottom: 30px;
+                }
+
+                .form-section h3 {
+                    color: #2d3748;
+                    font-size: 1.25rem;
+                    margin-bottom: 20px;
+                    font-weight: 600;
+                }
+
+                .image-upload-options {
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                    margin-bottom: 15px;
+                }
+
+                .btn-stock-photo {
+                    background: #f7fafc;
+                    border: 2px dashed #e2e8f0;
+                    color: #4a5568;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    transition: all 0.3s ease;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+
+                .btn-stock-photo:hover {
+                    background: #edf2f7;
+                    border-color: #cbd5e0;
+                    color: #2d3748;
+                }
+
+                .btn-stock-photo i {
+                    font-size: 1.1rem;
+                    color: #4a5568;
+                }
+
+                .text-muted {
+                    color: #718096;
+                    font-size: 0.9rem;
+                }
+
+                input[type="file"] {
+                    padding: 10px;
+                    border: 2px dashed #e2e8f0;
+                    border-radius: 8px;
+                    width: 100%;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
+
+                input[type="file"]:hover {
+                    border-color: #cbd5e0;
+                }
+
+                .image-preview {
+                    margin-top: 20px;
+                    min-height: 200px;
+                    border: 2px dashed #e2e8f0;
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    overflow: hidden;
+                    position: relative;
+                }
+
+                .image-preview img {
+                    max-width: 100%;
+                    max-height: 300px;
+                    object-fit: contain;
+                }
+
+                .image-preview:empty::before {
+                    content: 'Görsel önizleme burada görünecek';
+                    color: #a0aec0;
+                    font-size: 0.9rem;
+                }
+
+                @media (max-width: 768px) {
+                    .image-upload-options {
+                        flex-direction: column;
+                        align-items: stretch;
+                    }
+
+                    .text-muted {
+                        text-align: center;
+                    }
+                }
+            </style>
             <h3>Kampanya Kapak Görseli</h3>
             <div class="form-group">
-
                 <label for="campaign_image">Görsel Seç</label>
                 <div class="image-upload-options">
                     <button type="button" class="btn btn-outline-primary btn-stock-photo" data-bs-toggle="modal"
@@ -92,29 +285,39 @@ require_once __DIR__ . '/../../includes/header.php';
             <h3>Kampanya Detayları</h3>
             <div class="form-group">
                 <label for="campaign_type">Kampanya Tipi</label>
-                <select id="campaign_type" name="campaign_type" class="form-control" required onchange="toggleDiscountField()">
+                <select id="campaign_type" name="campaign_type" class="form-control" required
+                    onchange="toggleDiscountField()">
                     <option value="">Seçiniz</option>
-                    <option value="discount">İndirim</option>
-                    <option value="bogo">1 Alana 1 Bedava</option>
-                    <option value="bundle">Paket İndirimi</option>
+                    <option value="discount" <?= (isset($_SESSION['campaign_form_data']['campaign_type']) && $_SESSION['campaign_form_data']['campaign_type'] == 'discount') ? 'selected' : '' ?>>% İndirim
+                    </option>
+                    <option value="discount_amount" <?= (isset($_SESSION['campaign_form_data']['campaign_type']) && $_SESSION['campaign_form_data']['campaign_type'] == 'discount_amount') ? 'selected' : '' ?>>TL İndirim
+                    </option>
+                    <option value="bogo" <?= (isset($_SESSION['campaign_form_data']['campaign_type']) && $_SESSION['campaign_form_data']['campaign_type'] == 'bogo') ? 'selected' : '' ?>>1 Alana 1 Bedava
+                    </option>
+                    <option value="bundle" <?= (isset($_SESSION['campaign_form_data']['campaign_type']) && $_SESSION['campaign_form_data']['campaign_type'] == 'bundle') ? 'selected' : '' ?>>Paket İndirimi
+                    </option>
                 </select>
             </div>
 
+
             <div class="form-group" id="discount_field_group" style="display: none;">
-                <label for="campaign_discount">İndirim Oranı (%)</label>
-                <input type="number" id="campaign_discount" name="campaign_discount" class="form-control" min="0" max="100">
+                <label for="campaign_discount">İndirim Oranı</label>
+                <input type="number" id="campaign_discount" name="campaign_discount" class="form-control" min="0"
+                    max="100"
+                    value="<?= isset($_SESSION['campaign_form_data']['campaign_discount']) ? htmlspecialchars($_SESSION['campaign_form_data']['campaign_discount']) : '' ?>">
             </div>
 
             <div class="form-group">
-                <label for="campaign_min_purchase">Minimum Alışveriş Tutarı</label>
+                <label for="campaign_min_purchase">Minimum Alışveriş Tutarı(Alt limit Yok ise 0 giriniz)</label>
                 <input type="number" id="campaign_min_purchase" name="campaign_min_purchase" class="form-control"
-                    min="0">
+                    min="0"
+                    value="<?= isset($_SESSION['campaign_form_data']['campaign_min_purchase']) ? htmlspecialchars($_SESSION['campaign_form_data']['campaign_min_purchase']) : '0' ?>">
             </div>
 
             <div class="form-group">
-                <label for="campaign_details">Kampanya İçerik Bilgisi (Opsiyonel)</label>
+                <label for="campaign_details">Kampanya İçerik Bilgisi (ürünler , kampanya veya hizmet özeti)</label>
                 <textarea id="campaign_details" name="campaign_details" class="form-control" rows="4" required
-                    placeholder="Kampanya içeriği hakkında bilgi giriniz"></textarea>
+                    placeholder="Kampanya içeriği hakkında bilgi giriniz"><?= isset($_SESSION['campaign_form_data']['campaign_details']) ? htmlspecialchars($_SESSION['campaign_form_data']['campaign_details']) : '' ?></textarea>
             </div>
         </div>
         <div class="form-group">
@@ -128,6 +331,8 @@ require_once __DIR__ . '/../../includes/header.php';
                 <!-- Seçili koşullar buraya eklenecek -->
             </div>
         </div>
+
+
 
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">Kampanya Oluştur</button>
@@ -221,7 +426,7 @@ require_once __DIR__ . '/../../includes/header.php';
             <div class="modal-body">
                 <div class="preview-container">
                     <h4 class="mb-3">Kampanyanız kullanıcılara bu şekilde görünecek:</h4>
-                    
+
                     <!-- Kampanya Kartı Önizlemesi -->
                     <div class="campaign-card-preview">
                         <div class="campaign-card">
@@ -232,10 +437,11 @@ require_once __DIR__ . '/../../includes/header.php';
                                 <p id="previewDescription" class="campaign-card-desc"></p>
                                 <div class="campaign-card-meta">
                                     <div class="campaign-time">
-                                        <i class="far fa-clock"></i> 
+                                        <i class="far fa-clock"></i>
                                         <span id="previewDates"></span>
                                     </div>
-                                    <a href="javascript:void(0)" class="view-btn" onclick="showFullDetails()">Detayları Gör</a>
+                                    <a href="javascript:void(0)" class="view-btn" onclick="showFullDetails()">Detayları
+                                        Gör</a>
                                 </div>
                             </div>
                         </div>
@@ -273,851 +479,67 @@ require_once __DIR__ . '/../../includes/header.php';
     </div>
 </div>
 
-<style>
-    .mobile-overlay {
-        display: none;
-    }
-
-    .admin-content {
-        padding: 20px;
-        background-color: #f8f9fa;
-        min-height: calc(100vh - 60px);
-    }
-
-    .content-header {
-        margin-bottom: 30px;
-    }
-
-    .content-header h1 {
-        font-size: 24px;
-        color: #333;
-        margin: 0;
-        padding-bottom: 10px;
-        border-bottom: 2px solid #e9ecef;
-    }
-
-    .campaign-form-container {
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        max-width: 800px;
-        margin: 0 auto;
-    }
-
-    .campaign-form {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .form-section {
-        background-color: #f8f9fa;
-        border: 1px solid #e9ecef;
-        border-radius: 6px;
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-
-    .form-section h3 {
-        font-size: 18px;
-        color: #495057;
-        margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #dee2e6;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 8px;
-        color: #495057;
-        font-weight: 500;
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 8px 12px;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        font-size: 14px;
-        transition: border-color 0.15s ease-in-out;
-    }
-
-    .form-control:focus {
-        border-color: #80bdff;
-        outline: 0;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-    }
-
-    textarea.form-control {
-        resize: vertical;
-        min-height: 100px;
-    }
-
-    .row {
-        display: flex;
-        flex-wrap: wrap;
-        margin: -10px;
-    }
-
-    .col-md-6 {
-        flex: 0 0 50%;
-        max-width: 50%;
-        padding: 10px;
-    }
-
-    .image-preview {
-        margin-top: 10px;
-        max-width: 300px;
-    }
-
-    .image-preview img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 4px;
-        border: 1px solid #dee2e6;
-    }
-
-    .form-actions {
-        display: flex;
-        gap: 10px;
-        justify-content: flex-end;
-        margin-top: 20px;
-        padding-top: 20px;
-        border-top: 1px solid #e9ecef;
-    }
-
-    .btn {
-        padding: 8px 16px;
-        border-radius: 4px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .btn-primary {
-        background-color: #007bff;
-        border: 1px solid #0056b3;
-        color: #fff;
-    }
-
-    .btn-primary:hover {
-        background-color: #0056b3;
-        border-color: #004085;
-    }
-
-    .btn-secondary {
-        background-color: #6c757d;
-        border: 1px solid #545b62;
-        color: #fff;
-    }
-
-    .btn-secondary:hover {
-        background-color: #545b62;
-        border-color: #4e555b;
-    }
-
-    /* Responsive Tasarım */
-    @media (max-width: 768px) {
-        .col-md-6 {
-            flex: 0 0 100%;
-            max-width: 100%;
-        }
-
-        .campaign-form-container {
-            padding: 15px;
-        }
-
-        .form-section {
-            padding: 15px;
-        }
-
-        .form-actions {
-            flex-direction: column;
-        }
-
-        .btn {
-            width: 100%;
-            margin-bottom: 10px;
-        }
-    }
-
-    /* Form Validation Styles */
-    .form-control:invalid {
-        border-color: #dc3545;
-    }
-
-    .form-control:invalid:focus {
-        border-color: #dc3545;
-        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-    }
-
-    /* Custom Select Styling */
-    select.form-control {
-        appearance: none;
-        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23343a40' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 12px center;
-        background-size: 12px;
-        padding-right: 32px;
-    }
-
-    /* File Input Styling */
-    input[type="file"].form-control {
-        padding: 6px 12px;
-    }
-
-    input[type="file"].form-control::file-selector-button {
-        padding: 6px 12px;
-        margin: -6px 12px -6px -12px;
-        border: none;
-        background-color: #e9ecef;
-        color: #495057;
-        cursor: pointer;
-        transition: background-color 0.15s ease-in-out;
-    }
-
-    input[type="file"].form-control::file-selector-button:hover {
-        background-color: #dde2e6;
-    }
-
-    /* Custom Modal Styles */
-    .custom-modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .custom-modal.show {
-        display: flex !important;
-        opacity: 1;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .modal-wrapper {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        transition: all 0.3s ease;
-        overflow: hidden;
-        position: relative;
-
-        max-width: 1200px;
-        max-height: 90vh;
-    }
-
-    .modal-content {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .modal-header {
-        padding: 20px;
-        border-bottom: 1px solid #eee;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: white;
-        position: sticky;
-        top: 0;
-        z-index: 10;
-    }
-
-    .modal-body {
-        padding: 20px;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .modal-footer {
-        padding: 20px;
-        border-top: 1px solid #eee;
-        background: white;
-        position: sticky;
-        bottom: 0;
-        z-index: 10;
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-    }
-
-    .conditions-container {
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        background: white;
-        margin: 15px 0;
-    }
-
-    .conditions-list {
-        max-height: calc(50vh - 100px);
-        overflow-y: auto;
-        padding: 15px;
-    }
-
-    .condition-checkbox {
-        padding: 12px;
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        margin-bottom: 8px;
-        background: white;
-        display: flex;
-        align-items: center;
-        transition: all 0.2s ease;
-    }
-
-    .condition-checkbox:last-child {
-        margin-bottom: 0;
-    }
-
-    .condition-checkbox:hover {
-        background: #f8f9fa;
-    }
-
-    .template-selection {
-        background: #f8f9fa;
-        padding: 20px;
-        border-radius: 8px;
-        border: 1px solid #dee2e6;
-    }
-
-    .custom-condition-input {
-        background: #f8f9fa;
-        padding: 20px;
-        border-radius: 8px;
-        border: 1px solid #dee2e6;
-    }
-
-    /* Mobil Görünüm */
-    @media (max-width: 768px) {
-        .modal-wrapper {
-            width: 100%;
-            height: 100%;
-            max-height: 100%;
-            margin: 0;
-            border-radius: 0;
-        }
-
-        .modal-header {
-            padding: 15px;
-        }
-
-        .modal-body {
-            padding: 15px;
-        }
-
-        .modal-footer {
-            padding: 15px;
-            flex-direction: column;
-        }
-
-        .modal-footer .btn {
-            width: 100%;
-            margin: 0;
-            padding: 12px;
-        }
-
-        .template-selection {
-            padding: 15px;
-        }
-
-        .template-selection .d-flex {
-            flex-direction: column;
-        }
-
-        .template-selection .form-select {
-            margin-bottom: 10px;
-        }
-
-        .template-selection .btn {
-            width: 100%;
-        }
-
-        .conditions-list {
-            max-height: calc(100vh - 300px);
-        }
-
-        .condition-checkbox {
-            padding: 15px;
-        }
-
-        .condition-checkbox input[type="checkbox"] {
-            width: 24px;
-            height: 24px;
-            margin-right: 12px;
-        }
-
-        .custom-condition-input {
-            padding: 15px;
-        }
-
-        .custom-condition-input .input-group {
-            flex-direction: column;
-        }
-
-        .custom-condition-input .form-control {
-            margin-bottom: 10px;
-            width: 100%;
-        }
-
-        .custom-condition-input .btn {
-            width: 100%;
-        }
-    }
-
-    /* Tablet Görünüm */
-    @media (min-width: 769px) and (max-width: 1024px) {
-        .modal-wrapper {
-            width: 90%;
-            max-width: 800px;
-        }
-
-        .conditions-list {
-            max-height: calc(60vh - 100px);
-        }
-    }
-
-    /* Animasyonlar */
-    .custom-modal.show .modal-wrapper {
-        animation: modalSlideIn 0.3s ease forwards;
-    }
-
-    @keyframes modalSlideIn {
-        from {
-            transform: translateY(20px);
-            opacity: 0;
-        }
-
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
-
-    /* Touch Cihaz Optimizasyonları */
-    @media (hover: none) {
-
-        .condition-checkbox,
-        .btn,
-        .form-control,
-        .form-select {
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .condition-checkbox {
-            min-height: 54px;
-        }
-
-        .btn {
-            min-height: 44px;
-        }
-    }
-
-    .selected-conditions {
-        border: 1px solid #dee2e6;
-        border-radius: 4px;
-        padding: 15px;
-        min-height: 100px;
-        background-color: #f8f9fa;
-    }
-
-    .condition-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 8px 12px;
-        background-color: #fff;
-        border: 1px solid #dee2e6;
-        border-radius: 4px;
-        margin-bottom: 8px;
-    }
-
-    .condition-item:last-child {
-        margin-bottom: 0;
-    }
-
-    .condition-item .remove-btn {
-        color: #dc3545;
-        cursor: pointer;
-        padding: 4px 8px;
-        border: none;
-        background: none;
-    }
-
-    .condition-item .remove-btn:hover {
-        color: #bd2130;
-    }
-
-    .conditions-list {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .condition-checkbox {
-        display: flex;
-        align-items: center;
-        padding: 8px;
-        border: 1px solid #dee2e6;
-        border-radius: 4px;
-        background-color: #fff;
-        transition: background-color 0.2s;
-    }
-
-    .condition-checkbox:hover {
-        background-color: #f8f9fa;
-    }
-
-    .condition-checkbox input[type="checkbox"] {
-        margin-right: 10px;
-    }
-
-    .d-flex {
-        display: flex;
-    }
-
-    .gap-2 {
-        gap: 0.5rem;
-    }
-
-    /* Yükleniyor ve Mesaj Stilleri */
-    .loading-indicator {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 40px 20px;
-        background: white;
-        border-radius: 8px;
-        text-align: center;
-    }
-
-    .spinner {
-        width: 40px;
-        height: 40px;
-        border: 3px solid #f3f3f3;
-        border-top: 3px solid #007bff;
-        border-radius: 50%;
-        margin-bottom: 15px;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
-
-        100% {
-            transform: rotate(360deg);
-        }
-    }
-
-    .message-box {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 30px 20px;
-        text-align: center;
-        background: white;
-        border-radius: 8px;
-        margin: 20px 0;
-    }
-
-    .message-box i {
-        font-size: 32px;
-        margin-bottom: 15px;
-        color: #6c757d;
-    }
-
-    .message-box p {
-        margin: 0;
-        color: #495057;
-        font-size: 16px;
-    }
-
-    .message-box.error {
-        background-color: #fff8f8;
-        border: 1px solid #ffebee;
-    }
-
-    .message-box.error i {
-        color: #dc3545;
-    }
-
-    .message-box.error p {
-        color: #dc3545;
-    }
-
-    /* Mobil Görünüm İçin Mesaj Düzenlemeleri */
-    @media (max-width: 768px) {
-        .loading-indicator {
-            padding: 30px 15px;
-        }
-
-        .spinner {
-            width: 32px;
-            height: 32px;
-        }
-
-        .message-box {
-            padding: 20px 15px;
-            margin: 15px 0;
-        }
-
-        .message-box i {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-
-        .message-box p {
-            font-size: 14px;
-        }
-    }
-
-    /* Stok Fotoğraf Grid Düzenlemeleri */
-    .stock-photos-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 20px;
-        padding: 20px;
-        background: white;
-        width: 100%;
-    }
-
-    .stock-photo-item {
-        position: relative;
-        border-radius: 8px;
-        overflow: hidden;
-        aspect-ratio: 1;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border: 3px solid transparent;
-        background: white;
-    }
-
-    .stock-photo-item img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
-
-    .stock-photo-item:hover {
-        transform: scale(1.02);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .stock-photo-item.selected {
-        border-color: #007bff;
-        transform: scale(1.02);
-        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
-    }
-
-    .stock-photo-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .stock-photo-item:hover .stock-photo-overlay,
-    .stock-photo-item.selected .stock-photo-overlay {
-        opacity: 1;
-    }
-
-    .hidden {
-        display: none !important;
-    }
-
-    @media (max-width: 768px) {
-        .stock-photos-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            padding: 10px;
-        }
-    }
-
-    @media (min-width: 769px) and (max-width: 1024px) {
-        .stock-photos-grid {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-        }
-    }
-
-    @media (min-width: 1025px) {
-        .stock-photos-grid {
-            grid-template-columns: repeat(4, 1fr);
-        }
-    }
-
-    /* Kampanya Kartı Stilleri */
-    .campaign-card-preview {
-        max-width: 400px;
-        margin: 0 auto;
-    }
-
-    .campaign-card {
-        position: relative;
-        background: #fff;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease;
-    }
-
-    .campaign-card:hover {
-        transform: translateY(-5px);
-    }
-
-    .campaign-discount {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        background: #ff4757;
-        color: #fff;
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 14px;
-        z-index: 1;
-    }
-
-    .campaign-card-img {
-        width: 100%;
-        height: 200px;
-        object-fit: cover;
-    }
-
-    .campaign-card-content {
-        padding: 20px;
-    }
-
-    .campaign-card-title {
-        font-size: 18px;
-        font-weight: 600;
-        margin-bottom: 10px;
-        color: #2d3436;
-    }
-
-    .campaign-card-desc {
-        font-size: 14px;
-        color: #636e72;
-        margin-bottom: 15px;
-        line-height: 1.5;
-    }
-
-    .campaign-card-meta {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: 15px;
-        border-top: 1px solid #eee;
-    }
-
-    .campaign-time {
-        font-size: 13px;
-        color: #636e72;
-    }
-
-    .campaign-time i {
-        color: #ff4757;
-        margin-right: 5px;
-    }
-
-    .view-btn {
-        background: #2d3436;
-        color: #fff;
-        padding: 6px 15px;
-        border-radius: 20px;
-        font-size: 13px;
-        text-decoration: none;
-        transition: background 0.3s ease;
-    }
-
-    .view-btn:hover {
-        background: #636e72;
-        color: #fff;
-    }
-
-    /* Detaylı Bilgiler Stilleri */
-    .campaign-full-details {
-        margin-top: 30px;
-        padding: 20px;
-        background: #f8f9fa;
-        border-radius: 12px;
-    }
-
-    .details-container {
-        background: #fff;
-        padding: 20px;
-        border-radius: 8px;
-    }
-
-    .detail-group {
-        margin-bottom: 15px;
-    }
-
-    .detail-group:last-child {
-        margin-bottom: 0;
-    }
-
-    .detail-group label {
-        display: block;
-        font-weight: 600;
-        color: #2d3436;
-        margin-bottom: 5px;
-    }
-
-    .conditions-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .conditions-list li {
-        padding: 8px 0;
-        border-bottom: 1px solid #eee;
-        font-size: 14px;
-        color: #636e72;
-    }
-
-    .conditions-list li:last-child {
-        border-bottom: none;
-    }
-
-    @media (max-width: 768px) {
-        .campaign-card-preview {
-            max-width: 100%;
-        }
-    }
-</style>
+<link rel="stylesheet" href="<?= Helper::url('panel/store/assets/css/addcampaign.css') ?>">
 <script>
-    // Şablon verileri
+    document.addEventListener('DOMContentLoaded', function () {
+        // Mevcut kampanya koşullarını yükle
+        const selectedConditions = <?= isset($_SESSION['campaign_form_data']['conditions']) ? json_encode($_SESSION['campaign_form_data']['conditions']) : '[]' ?>;
+        window.selectedConditions = selectedConditions; // Global değişkene ata
 
+        // Koşulları container'a ekle
+        const container = document.getElementById('selectedConditionsContainer');
+        if (container && selectedConditions.length > 0) {
+            selectedConditions.forEach(condition => {
+                const div = document.createElement('div');
+                div.className = 'condition-item';
+                div.innerHTML = `
+                    <span>${condition}</span>
+                    <input type="hidden" name="conditions[]" value="${condition}">
+                    <button type="button" class="remove-btn" onclick="removeCondition('${condition.replace(/'/g, "\\'")}')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+        }
 
-    let selectedConditions = [];
+        // Karakter sayaçlarını güncelle
+        const titleInput = document.getElementById('campaign_title');
+        const descriptionInput = document.getElementById('campaign_description');
+        
+        if (titleInput) {
+            updateCharCounter(titleInput, 'titleCharCount');
+            titleInput.addEventListener('input', function () {
+                updateCharCounter(this, 'titleCharCount');
+            });
+        }
+        
+        if (descriptionInput) {
+            updateCharCounter(descriptionInput, 'descriptionCharCount');
+            descriptionInput.addEventListener('input', function () {
+                updateCharCounter(this, 'descriptionCharCount');
+            });
+        }
+
+        // Kampanya tipi seçiliyse indirim alanını göster
+        const campaignType = document.getElementById('campaign_type');
+        if (campaignType && campaignType.value === 'discount' || campaignType.value === 'discount_amount') {
+            document.getElementById('discount_field_group').style.display = 'block';
+        }
+
+        // Alt kategori seçiliyse alt alt kategorileri yükle
+        const subCategorySelect = document.getElementById('campaing_sub_id');
+        if (subCategorySelect && subCategorySelect.value) {
+            loadSubSubCategories(subCategorySelect.value);
+        }
+    });
+
+    function updateCharCounter(input, counterId) {
+        const counter = document.getElementById(counterId);
+        if (counter) {
+            counter.textContent = input.value.length;
+        }
+    }
 
     function openConditionsModal() {
         const modal = document.getElementById('conditionsModal');
@@ -1130,23 +552,17 @@ require_once __DIR__ . '/../../includes/header.php';
         modal.classList.remove('show');
     }
 
-    function applyTemplate() {
-        const templateSelect = document.getElementById('conditionTemplate');
-        const selectedTemplate = templateSelect.value;
-
-        if (selectedTemplate && templates[selectedTemplate]) {
-            renderConditionsList(templates[selectedTemplate]);
-        }
-    }
-
     function renderConditionsList(conditions = []) {
         const list = document.getElementById('conditionsList');
+        if (!list) return;
+        
         list.innerHTML = '';
 
-        const allConditions = [...new Set([...conditions, ...selectedConditions])];
+        // Tüm koşulları birleştir ve tekrarları kaldır
+        const allConditions = [...new Set([...conditions, ...window.selectedConditions])];
 
         allConditions.forEach((condition, index) => {
-            const isChecked = selectedConditions.includes(condition);
+            const isChecked = window.selectedConditions.includes(condition);
             const div = document.createElement('div');
             div.className = 'condition-checkbox';
             div.innerHTML = `
@@ -1157,11 +573,11 @@ require_once __DIR__ . '/../../includes/header.php';
             const checkbox = div.querySelector('input');
             checkbox.addEventListener('change', () => {
                 if (checkbox.checked) {
-                    if (!selectedConditions.includes(condition)) {
-                        selectedConditions.push(condition);
+                    if (!window.selectedConditions.includes(condition)) {
+                        window.selectedConditions.push(condition);
                     }
                 } else {
-                    selectedConditions = selectedConditions.filter(c => c !== condition);
+                    window.selectedConditions = window.selectedConditions.filter(c => c !== condition);
                 }
             });
 
@@ -1169,22 +585,13 @@ require_once __DIR__ . '/../../includes/header.php';
         });
     }
 
-    function addCustomCondition() {
-        const input = document.getElementById('customCondition');
-        const condition = input.value.trim();
-
-        if (condition) {
-            selectedConditions.push(condition);
-            renderConditionsList();
-            input.value = '';
-        }
-    }
-
     function saveConditions() {
         const container = document.getElementById('selectedConditionsContainer');
+        if (!container) return;
+        
         container.innerHTML = '';
 
-        selectedConditions.forEach(condition => {
+        window.selectedConditions.forEach(condition => {
             const div = document.createElement('div');
             div.className = 'condition-item';
             div.innerHTML = `
@@ -1201,70 +608,77 @@ require_once __DIR__ . '/../../includes/header.php';
     }
 
     function removeCondition(condition) {
-        selectedConditions = selectedConditions.filter(c => c !== condition);
+        window.selectedConditions = window.selectedConditions.filter(c => c !== condition);
         saveConditions();
     }
 
-    // Sayfa yüklendiğinde event listener'ları ekle
-    document.addEventListener('DOMContentLoaded', function () {
-        // Modal dışına tıklama ile kapatma
-        const modal = document.getElementById('conditionsModal');
-        if (modal) {
-            modal.addEventListener('click', function (e) {
-                if (e.target === modal) {
-                    closeConditionsModal();
-                }
-            });
-        }
+    function addCustomCondition() {
+        const input = document.getElementById('customCondition');
+        const condition = input.value.trim();
 
-        // ESC tuşu ile kapatma
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape' && modal && modal.classList.contains('show')) {
-                closeConditionsModal();
+        if (condition) {
+            if (!window.selectedConditions.includes(condition)) {
+                window.selectedConditions.push(condition);
+                renderConditionsList();
             }
-        });
-
-        // Custom condition input için enter tuşu desteği
-        const customInput = document.getElementById('customCondition');
-        if (customInput) {
-            customInput.addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addCustomCondition();
-                }
-            });
+            input.value = '';
         }
-    });
-</script>
-<script>
+    }
+
+    function applyTemplate() {
+        const templateSelect = document.getElementById('conditionTemplate');
+        const selectedTemplate = templateSelect.value;
+
+        if (selectedTemplate && templates[selectedTemplate]) {
+            renderConditionsList(templates[selectedTemplate]);
+        }
+    }
+
+    function loadSubSubCategories(subId) {
+        const subSubSelect = document.getElementById('sub_sub_id');
+        if (!subSubSelect) return;
+
+        fetch('<?= Helper::controller('subsubcategoriesController') ?>?action=getBySubId&sub_id=' + subId)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    subSubSelect.innerHTML = '<option value="">Seçiniz</option>';
+                    data.data.forEach(item => {
+                        const selected = '<?= isset($_SESSION['campaign_form_data']['campaing_sub_sub_id']) ? $_SESSION['campaign_form_data']['campaing_sub_sub_id'] : '' ?>' == item.id ? 'selected' : '';
+                        subSubSelect.innerHTML += `<option value="${item.id}" ${selected}>${item.sub_sub_name}</option>`;
+                    });
+                }
+            })
+            .catch(error => console.error('Hata:', error));
+    }
+
     // Modal işlemleri
     async function openModal() {
-        console.log('Modal açılıyor...');
-        const modal = document.getElementById('stockPhotoModal');
-        if (!modal) {
-            console.error('Modal elementi bulunamadı!');
+        const subCategoryId = document.getElementById('campaing_sub_id').value;
+        const subSubCategoryId = document.getElementById('sub_sub_id').value;
+
+        // Alt kategori seçilmemişse uyarı ver
+        if (!subCategoryId) {
+            alert('Lütfen önce kampanya tipini seçiniz');
             return;
         }
+
+        const modal = document.getElementById('stockPhotoModal');
         modal.classList.add('show');
         document.body.style.overflow = 'hidden';
 
         // Modal açıldığında fotoğrafları yükle
-        await loadPhotos();
+        await loadPhotos(subCategoryId, subSubCategoryId);
     }
 
     function closeModal() {
-        console.log('Modal kapatılıyor...');
         const modal = document.getElementById('stockPhotoModal');
-        if (!modal) {
-            console.error('Modal elementi bulunamadı!');
-            return;
-        }
         modal.classList.remove('show');
         document.body.style.overflow = '';
     }
 
     // Fotoğrafları yükle
-    async function loadPhotos() {
+    async function loadPhotos(subCategoryId, subSubCategoryId) {
         const photosGrid = document.getElementById('stockPhotosGrid');
         const loadingIndicator = document.getElementById('loadingIndicator');
         const noPhotosMessage = document.getElementById('noPhotosMessage');
@@ -1274,74 +688,36 @@ require_once __DIR__ . '/../../includes/header.php';
             if (photosGrid) photosGrid.innerHTML = '';
             if (noPhotosMessage) noPhotosMessage.classList.add('hidden');
 
-            const token = '<?= $csrf->getToken() ?>';
-            const url = `<?= Helper::url('api/stock-photos.php') ?>?_token=${token}`;
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
-                }
+            const formData = new FormData();
+            formData.append('action', 'getPhotos');
+            formData.append('sub_id', subCategoryId);
+            formData.append('sub_sub_id', subSubCategoryId || '0');
+            formData.append('token', '<?= $csrf->getToken() ?>');
+
+            const response = await fetch('<?= Helper::url('api/stock-photos.php') ?>', {
+                method: 'POST',
+                body: formData
             });
 
-            const responseText = await response.text();
-            let result;
-            try {
-                result = JSON.parse(responseText);
-            } catch (jsonError) {
-                throw new Error('API yanıtı geçerli bir JSON formatında değil');
-            }
-
-            if (!result.status) {
-                throw new Error(result.message || 'Fotoğraflar yüklenemedi');
-            }
+            const result = await response.json();
 
             if (loadingIndicator) loadingIndicator.classList.add('hidden');
 
-            if (!result.data || result.data.length === 0) {
+            if (!result.success || !result.data || result.data.length === 0) {
                 if (noPhotosMessage) noPhotosMessage.classList.remove('hidden');
                 return;
             }
 
             renderPhotos(result.data);
         } catch (error) {
+            console.error('Error:', error);
             if (loadingIndicator) loadingIndicator.classList.add('hidden');
             if (noPhotosMessage) {
                 noPhotosMessage.classList.remove('hidden');
-                noPhotosMessage.querySelector('p').textContent = error.message;
+                noPhotosMessage.querySelector('p').textContent = 'Fotoğraflar yüklenirken bir hata oluştu';
             }
         }
     }
-
-    document.addEventListener('DOMContentLoaded', function () {
-
-        // Modal açma butonu
-        const openModalBtn = document.querySelector('.btn-stock-photo');
-        if (openModalBtn) {
-            openModalBtn.onclick = function (e) {
-                e.preventDefault();
-                openModal();
-            };
-        } else {
-            console.error('Modal açma butonu bulunamadı!');
-        }
-
-        // Modal dışına tıklama ile kapatma
-        const modal = document.getElementById('stockPhotoModal');
-        if (modal) {
-            modal.addEventListener('click', function (e) {
-                if (e.target === modal) {
-                    closeModal();
-                }
-            });
-        }
-
-        // ESC tuşu ile kapatma
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape' && modal && modal.classList.contains('show')) {
-                closeModal();
-            }
-        });
-    });
 
     // Fotoğrafları render et
     function renderPhotos(photos) {
@@ -1353,7 +729,7 @@ require_once __DIR__ . '/../../includes/header.php';
             const photoElement = document.createElement('div');
             photoElement.className = 'stock-photo-item';
             photoElement.innerHTML = `
-                <img src="<?= Helper::upolads('images/stock_photos/') ?>${photo.url}" alt="${photo.title}">
+                <img src="<?= Helper::upolads('images/stock_photos/') ?>${photo.url}" alt="${photo.stock_photo_title}">
                 <div class="stock-photo-overlay">
                     <button class="btn btn-light">Seç</button>
                 </div>
@@ -1397,295 +773,202 @@ require_once __DIR__ . '/../../includes/header.php';
             hiddenInput.value = photoUrl;
         }
     }
-</script>
 
-<script>
-    // Görsel işleme yardımcı fonksiyonları
-    async function processImage(file) {
-        const MAX_WIDTH = 640;
-        const MAX_HEIGHT = 640;
-        const QUALITY = 0.8;
-
-        return new Promise((resolve, reject) => {
-            if (!file || !file.type.startsWith('image/')) {
-                reject(new Error('Geçersiz dosya formatı'));
-                return;
-            }
-
-            const img = new Image();
-            img.onload = async () => {
-                let width = img.width;
-                let height = img.height;
-                
-                if (width > MAX_WIDTH) {
-                    height = Math.round((height * MAX_WIDTH) / width);
-                    width = MAX_WIDTH;
-                }
-                
-                if (height > MAX_HEIGHT) {
-                    width = Math.round((width * MAX_HEIGHT) / height);
-                    height = MAX_HEIGHT;
-                }
-
-                const canvas = document.createElement('canvas');
-                canvas.width = width;
-                canvas.height = height;
-                
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-
-                try {
-                    // WebP formatına dönüştür ve base64'e çevir
-                    const base64Data = canvas.toDataURL('image/webp', QUALITY);
-
-                    resolve({
-                        base64: base64Data,
-                        width: width,
-                        height: height,
-                        size: Math.round((base64Data.length * 3) / 4) // Base64 boyutunu yaklaşık hesapla
-                    });
-                } catch (error) {
-                    reject(error);
-                }
+    // Event Listeners
+    document.addEventListener('DOMContentLoaded', function () {
+        // Modal açma butonu
+        const openModalBtn = document.querySelector('.btn-stock-photo');
+        if (openModalBtn) {
+            openModalBtn.onclick = function (e) {
+                e.preventDefault();
+                openModal();
             };
-
-            img.onerror = () => reject(new Error('Görsel yüklenemedi'));
-            img.src = URL.createObjectURL(file);
-        });
-    }
-
-    // Dosya seçildiğinde önizleme ve işleme
-    document.querySelector('input[name="campaign_image"]').addEventListener('change', async function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            try {
-                // Stok fotoğraf seçimini temizle
-                let stockPhotoInput = document.querySelector('input[name="selected_stock_photo"]');
-                if (stockPhotoInput) {
-                    stockPhotoInput.remove();
-                }
-
-                // Yükleme göstergesi
-                const previewDiv = document.getElementById('image_preview');
-                previewDiv.innerHTML = '<div class="loading-indicator"><div class="spinner"></div><p>Görsel işleniyor...</p></div>';
-
-                // Görseli işle
-                const processedImage = await processImage(file);
-                
-                // Önizleme göster
-                previewDiv.innerHTML = `
-                    <div class="preview-container">
-                        <img src="${processedImage.base64}" alt="İşlenmiş görsel" style="max-width: 300px; margin-top: 10px;">
-                        <div class="image-info" style="font-size: 12px; color: #666; margin-top: 5px;">
-                            Boyut: ${(processedImage.size / 1024).toFixed(2)} KB
-                            Genişlik: ${processedImage.width}px
-                            Yükseklik: ${processedImage.height}px
-                        </div>
-                        <button type="button" class="btn btn-sm btn-danger mt-2" onclick="removeUploadedImage()">
-                            <i class="fas fa-times"></i> Görseli Kaldır
-                        </button>
-                    </div>
-                `;
-
-                // Base64 verisini gizli input'a ekle
-                let base64Input = document.querySelector('input[name="image_base64"]');
-                if (!base64Input) {
-                    base64Input = document.createElement('input');
-                    base64Input.type = 'hidden';
-                    base64Input.name = 'image_base64';
-                    this.parentNode.appendChild(base64Input);
-                }
-                base64Input.value = processedImage.base64;
-
-                // Görsel boyutlarını gizli input'lara ekle
-                let dimensionsInput = document.createElement('input');
-                dimensionsInput.type = 'hidden';
-                dimensionsInput.name = 'image_dimensions';
-                dimensionsInput.value = JSON.stringify({
-                    width: processedImage.width,
-                    height: processedImage.height,
-                    size: processedImage.size
-                });
-                this.parentNode.appendChild(dimensionsInput);
-
-            } catch (error) {
-                console.error('Görsel işleme hatası:', error);
-                const previewDiv = document.getElementById('image_preview');
-                previewDiv.innerHTML = `
-                    <div class="alert alert-danger">
-                        Görsel işlenirken bir hata oluştu: ${error.message}
-                    </div>
-                `;
-            }
         }
-    });
 
-    // Görseli kaldır
-    function removeUploadedImage() {
-        const previewDiv = document.getElementById('image_preview');
+        // Dosya yükleme input'u için event listener
         const fileInput = document.querySelector('input[name="campaign_image"]');
-        const base64Input = document.querySelector('input[name="image_base64"]');
-        const dimensionsInput = document.querySelector('input[name="image_dimensions"]');
-        
-        if (previewDiv) previewDiv.innerHTML = '';
-        if (fileInput) fileInput.value = '';
-        if (base64Input) base64Input.remove();
-        if (dimensionsInput) dimensionsInput.remove();
-    }
+        if (fileInput) {
+            fileInput.addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                if (file) {
+                    // Stok fotoğraf seçimini temizle
+                    const stockPhotoInput = document.querySelector('input[name="selected_stock_photo"]');
+                    if (stockPhotoInput) {
+                        stockPhotoInput.remove();
+                    }
 
-    // Form gönderimi
-    document.getElementById('campaignForm').addEventListener('submit', function(e) {
-        e.preventDefault(); // Form gönderimini engelle
-        
-        // Form verilerini kontrol et
-        const fileInput = document.querySelector('input[name="campaign_image"]');
-        const stockPhotoInput = document.querySelector('input[name="selected_stock_photo"]');
-        const base64Input = document.querySelector('input[name="image_base64"]');
-        
-        // Görsel kontrolü
-        if (!(stockPhotoInput && stockPhotoInput.value) && !(base64Input && base64Input.value)) {
-            alert('Lütfen bir görsel seçin veya yükleyin!');
-            return;
+                    // Önizleme alanını temizle ve yeni görseli göster
+                    const previewContainer = document.getElementById('image_preview');
+                    if (previewContainer) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            previewContainer.innerHTML = `
+                                <div class="preview-container">
+                                    <img src="${e.target.result}" alt="Seçilen görsel" style="max-width: 300px; margin-top: 10px;">
+                                    <div class="image-info" style="font-size: 12px; color: #666; margin-top: 5px;">
+                                        Dosya: ${file.name}<br>
+                                        Boyut: ${(file.size / 1024).toFixed(2)} KB
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-danger mt-2" onclick="removeUploadedImage()">
+                                        <i class="fas fa-times"></i> Görseli Kaldır
+                                    </button>
+                                </div>
+                            `;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+            });
         }
 
-        // Önizleme modalını göster
-        showPreviewModal();
-    });
-
-    function showPreviewModal() {
-        // Form verilerini al
-        const title = document.querySelector('input[name="campaign_title"]').value;
-        const description = document.querySelector('textarea[name="campaign_description"]').value;
-        const startDate = new Date(document.querySelector('input[name="campaign_start_date"]').value);
-        const endDate = new Date(document.querySelector('input[name="campaign_end_date"]').value);
-        const type = document.querySelector('select[name="campaign_type"]').value;
-        const discount = document.querySelector('input[name="campaign_discount"]').value;
-        const minPurchase = document.querySelector('input[name="campaign_min_purchase"]').value;
-        const details = document.querySelector('textarea[name="campaign_details"]').value;
-        
-        // Kampanya tipini Türkçe'ye çevir
-        const campaignTypes = {
-            'discount': 'İndirim',
-            'bogo': '1 Alana 1 Bedava',
-            'bundle': 'Paket İndirimi'
-        };
-
-        // Kalan gün sayısını hesapla
-        const today = new Date();
-        const diffTime = endDate - today;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-        // Önizleme alanlarını doldur
-        document.getElementById('previewTitle').textContent = title;
-        document.getElementById('previewDescription').textContent = description;
-        document.getElementById('previewDates').textContent = `${diffDays} gün kaldı`;
-        document.getElementById('previewType').textContent = campaignTypes[type] || type;
-        document.getElementById('previewMinPurchase').textContent = minPurchase ? `${minPurchase} TL` : '-';
-        document.getElementById('previewDetails').textContent = details;
-        
-        // İndirim badge'ini göster
-        const discountBadge = document.getElementById('previewDiscountBadge');
-        if (discount) {
-            discountBadge.textContent = `%${discount} İndirim`;
-            discountBadge.style.display = 'block';
-        } else {
-            discountBadge.style.display = 'none';
-        }
-
-        // Koşulları listele
-        const conditionsList = document.getElementById('previewConditions');
-        conditionsList.innerHTML = '';
-        selectedConditions.forEach(condition => {
-            const li = document.createElement('li');
-            li.textContent = condition;
-            conditionsList.appendChild(li);
-        });
-
-        // Görseli ayarla
-        const previewImage = document.getElementById('previewImage');
-        const stockPhotoInput = document.querySelector('input[name="selected_stock_photo"]');
-        const base64Input = document.querySelector('input[name="image_base64"]');
-
-        if (stockPhotoInput && stockPhotoInput.value) {
-            previewImage.src = `<?= Helper::upolads('images/stock_photos/') ?>${stockPhotoInput.value}`;
-        } else if (base64Input && base64Input.value) {
-            previewImage.src = base64Input.value;
-        }
-
-        // Modalı göster
-        const modal = document.getElementById('previewModal');
-        modal.classList.add('show');
-    }
-
-    function showFullDetails() {
-        const fullDetails = document.getElementById('fullDetails');
-        if (fullDetails.style.display === 'none') {
-            fullDetails.style.display = 'block';
-        } else {
-            fullDetails.style.display = 'none';
-        }
-    }
-
-    function closePreviewModal() {
-        const modal = document.getElementById('previewModal');
-        modal.classList.remove('show');
-    }
-
-    function submitCampaign() {
-        // Görsel kaynağını belirle
-        const stockPhotoInput = document.querySelector('input[name="selected_stock_photo"]');
-        const imageSourceInput = document.createElement('input');
-        imageSourceInput.type = 'hidden';
-        imageSourceInput.name = 'image_source';
-        imageSourceInput.value = stockPhotoInput && stockPhotoInput.value ? 'stock' : 'upload';
-        
-        // Form'a ekle ve gönder
-        const form = document.getElementById('campaignForm');
-        form.appendChild(imageSourceInput);
-        form.submit();
-    }
-
-    // Modal dışına tıklama ile kapatma
-    document.addEventListener('DOMContentLoaded', function() {
-        const modal = document.getElementById('previewModal');
+        // Modal dışına tıklama ile kapatma
+        const modal = document.getElementById('stockPhotoModal');
         if (modal) {
-            modal.addEventListener('click', function(e) {
+            modal.addEventListener('click', function (e) {
                 if (e.target === modal) {
-                    closePreviewModal();
+                    closeModal();
                 }
             });
         }
 
         // ESC tuşu ile kapatma
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape' && modal && modal.classList.contains('show')) {
-                closePreviewModal();
+                closeModal();
             }
         });
     });
-</script>
 
-<script>
-    function toggleDiscountField() {
-        const campaignType = document.getElementById('campaign_type').value;
-        const discountField = document.getElementById('discount_field_group');
-        
-        if (campaignType === 'discount') {
-            discountField.style.display = 'block';
-            document.getElementById('campaign_discount').required = true;
-        } else {
-            discountField.style.display = 'none';
-            document.getElementById('campaign_discount').required = false;
-            document.getElementById('campaign_discount').value = '';
+    // Yüklenen görseli kaldır
+    function removeUploadedImage() {
+        const previewContainer = document.getElementById('image_preview');
+        const fileInput = document.querySelector('input[name="campaign_image"]');
+
+        if (previewContainer) {
+            previewContainer.innerHTML = '';
+        }
+        if (fileInput) {
+            fileInput.value = '';
         }
     }
 
-    // Sayfa yüklendiğinde kampanya tipini kontrol et
+    function toggleDiscountField() {
+        const campaignType = document.getElementById('campaign_type').value;
+        const discountFieldGroup = document.getElementById('discount_field_group');
+        const discountLabel = discountFieldGroup.querySelector('label');
+        const discountInput = document.getElementById('campaign_discount');
+
+        if (campaignType === 'discount') {
+            discountFieldGroup.style.display = 'block';
+            discountLabel.textContent = 'İndirim Oranı (%)';
+            discountInput.max = '100';
+            discountInput.placeholder = '0-100 arası bir değer giriniz';
+        } else if (campaignType === 'discount_amount') {
+            discountFieldGroup.style.display = 'block';
+            discountLabel.textContent = 'İndirim Tutarı (TL)';
+            discountInput.max = '999999';
+            discountInput.placeholder = 'İndirim tutarını giriniz';
+        } else {
+            discountFieldGroup.style.display = 'none';
+        }
+    }
+
+    // Sayfa yüklendiğinde mevcut seçimi kontrol et
     document.addEventListener('DOMContentLoaded', function() {
         toggleDiscountField();
     });
 </script>
 
+<style>
+    .stock-photo-item {
+        width: 150px;
+        height: 150px;
+        margin: 10px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .stock-photo-item:hover {
+        border-color: #007bff;
+        transform: scale(1.05);
+    }
+
+    .stock-photo-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .stock-photo-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .stock-photo-item:hover .stock-photo-overlay {
+        opacity: 1;
+    }
+
+    .stock-photos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+        padding: 15px;
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .loading-indicator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .loading-indicator .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 10px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .message-box {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+    }
+
+    .message-box i {
+        font-size: 24px;
+        margin-bottom: 10px;
+        color: #dc3545;
+    }
+
+    .hidden {
+        display: none;
+    }
+</style>
 
 
 

@@ -13,7 +13,7 @@ require_once __DIR__ . '/../../../classes/Credits.php';
 $campaigns = new Campaigns();
 $istatsitik = new CampaignsStatics();
 $magazaistatistik = $istatsitik->getAllStatistics();
-$sayi = $campaigns->count("WHERE isConfirmed=1 AND store_id=" . $session->getUserId());
+$sayi = $campaigns->count("WHERE campaign_status='active' AND store_id=" . $session->getUserId());
 
 
 
@@ -47,8 +47,6 @@ $creditsStates = [
     ]
 ];
 
-
- 
 
 ?>
 
@@ -188,7 +186,7 @@ $creditsStates = [
                         <?php }
                     } else { ?>
                         <tr>
-                            <td colspan="7"> Yeni Bir Kampanya <a href="campaigns/addcampaigns.php">Başlatın</a></td>
+                            <td colspan="7"> Yeni Bir Kampanya <a href="campaigns/addcampaign.php">Başlatın</a></td>
                         </tr><?php
                     }
 
@@ -230,7 +228,7 @@ $creditsStates = [
                                 <td><?= $a['created_at'] ?></td>
                                 <td><?= $creditsStates[$a['process']]['proccess'] ?></td>
                                 <td class="<?= $creditsStates[$a['process']]['class'] ?>">
-                                    <?= $creditsStates[$a['process']]['pointer'] ?>        <?= number_format($a['amount']) ?>
+                                    <?= $creditsStates[$a['process']]['pointer'] ?>         <?= number_format($a['amount']) ?>
                                 </td>
                                 <td><?= number_format($a['credit_value']); ?></td>
                                 <td><?= json_decode($a['credit_details'], true)['description'] ?></td>

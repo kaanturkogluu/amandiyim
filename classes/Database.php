@@ -74,27 +74,27 @@ class Database
                 $wherearraydeger = $wherealanlar;
                 $wherealanlar = ""; // SQL parçası yok
             }
-    
+
             // SQL sorgusunu hazırla
             $sql = ($innerjoin == 1) ? $tablo : "SELECT * FROM " . $tablo;
-    
+
             // Eğer where koşulu varsa ekle
             if (!empty($wherealanlar) && is_string($wherealanlar)) {
                 $sql .= " " . $wherealanlar;
             }
-    
+
             // Sorguyu hazırla ve çalıştır
             $calistir = $this->connection->prepare($sql);
             $sonuc = $calistir->execute($wherearraydeger);
-    
+
             // Sonucu döndür
             return $sonuc ? $calistir->fetchAll(PDO::FETCH_ASSOC) : false;
-    
+
         } catch (PDOException $e) {
             return false;
         }
     }
-    
+
 
     public function sorguCalistir($tablosorgu, $alanlar = "", $degerlerarray = [])
     {

@@ -238,6 +238,7 @@ function isStoreOpen(workTime) {
 }
 
 function createStoreCard(store) {
+     
     return `
     <div class="store-card" onclick="window.location.href='magaza-detay.php?id=${store.id}'">
         <div class="store-image">
@@ -275,11 +276,11 @@ function loadStores() {
     document.getElementById('storesGrid').insertAdjacentHTML('beforeend', '<div id="loadingSpinner" style="text-align:center;padding:20px;">Yükleniyor...</div>');
     fetch(`<?=Helper::baseUrl()?>/api/getStores.php?page=${currentPage}&type=${filterType}`)
         .then(res => {
-            console.log('Ham yanıt:', res);
+         
             return res.json();
         })
         .then(data => {
-            console.log('Çözümlenmiş JSON:', data);
+         console.log(data);
             document.getElementById('loadingSpinner').remove();
             if (data.data && data.data.length > 0) {
                 data.data.forEach(store => {

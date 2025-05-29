@@ -42,7 +42,7 @@ if (isset($campaignId) && $campaignId > 0) {
                 <div class="store-header">
                     <div class="store-header-content">
                         <div class="store-image">
-                            <img src="<?= htmlspecialchars($store['store_main_image']) ?>" height="150px"
+                            <img src="<?=Helper::upolads('images/store_images/').htmlspecialchars($store['store_main_image'])?>" height="150px"
                                 alt="<?= htmlspecialchars($store['store_name']) ?>">
                             <div class="store-badge">
                                 <i class="fas fa-check-circle"></i>

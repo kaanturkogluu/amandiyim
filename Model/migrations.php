@@ -28,7 +28,8 @@ $storeBlueprint->id()
     ->string('store_name')
     ->string('store_owner_phone')
     ->string('store_owner_name')
-    ->string('work_time')->default('09:00 - 18:00')
+    ->string('store_opening_time')->default('09:00')
+    ->string('store_closing_time')->default('18:00')
     ->string('store_adress')
     ->string('store_logo')->default('store-default-icon.jpg')
     ->string('store_phone')
@@ -36,6 +37,7 @@ $storeBlueprint->id()
     ->string('store_credits')->default('1000')
     ->enum('store_statu', ['suspend', 'blocked', 'active', 'waiting'])
     ->string('store_confirmed_ip_adress')
+    ->integer('updated_by_store_info')->default(0)
     ->text('local_adress')
     ->integer('store_category');
 
@@ -55,8 +57,8 @@ $campaignsBlueprint->id()
     ->string('campaign_min_purchase')
     ->integer('campaign_category')
     ->integer('isConfirmed')->default('0')
-    ->enum('campaign_type', ['discount', 'bogo', 'bundle'])->default('discount')
-    ->enum('campaign_status',['expired', 'active', 'suspend','waiting'])->default('waiting')
+    ->enum('campaign_type', ['discount', 'bogo', 'bundle','discount_amount'])->default('discount')
+    ->enum('campaign_status', ['expired', 'active', 'suspend', 'waiting'])->default('waiting')
     ->foreignKey('store_id', 'stores', 'id');
 
 
@@ -67,7 +69,7 @@ $campaignsStaticsBlueprint->id()
     ->string('total_views', 10)->default("0")
     ->string('total_diffrent_views', 10)->default("0")
     ->integer('store_id')
-    ->foreignKey('id', 'campaigns');
+    ->foreignKey('campaign_id', 'campaigns', 'id');
 
 // Customers tablosu
 $customersBlueprint = new Blueprint('customers');
@@ -89,7 +91,7 @@ $phonesBlueprint->id()
     ->integer('customer_id')
     ->string('phone_number', 10)
     ->string('is_verified', 1)
-    ->foreignKey('customer_id', 'customers');
+    ->foreignKey('customer_id', 'customers', 'id');
 
 
 // Phone Verified Codes tablosu
@@ -97,52 +99,70 @@ $phoneVerifiedCodesBlueprint = new Blueprint('phone_verified_codes');
 $phoneVerifiedCodesBlueprint->id()
     ->string('code', 6)
     ->integer('phone_id')
-    ->foreignKey('phone_id', 'phones');
+    ->foreignKey('phone_id', 'phones', 'id');
 
 
-    
- $storeCategoriesBlueprint = new Blueprint('store_categories');
- $storeCategoriesBlueprint->id()
-    ->string('category_name')
-    ->string('category_description')
-    ->string('category_image')
-    ->string('category_icon');
 
 
-    $stockPhotosBlueprint = new Blueprint('stock_photos');
-    $stockPhotosBlueprint->id()
+$stockPhotosBlueprint = new Blueprint('stock_photos');
+$stockPhotosBlueprint->id()
     ->string('url')
     ->string('stock_photo_title')
-   
-    ->integer('stock_photo_category')->foreignKey('id', 'store_categories');
-   
+
+    ->integer('stock_photo_store_category')
+    ->integer('stock_photo_sub_category')->default(0)
+    ->integer('stock_photo_sub_sub_category')->default(0)
+    ->foreignKey('id', 'store_categories', 'id');
 
 
-    $campaignViewsBlueprint = new Blueprint('campaign_views');
-    $campaignViewsBlueprint->id()
+
+$campaignViewsBlueprint = new Blueprint('campaign_views');
+$campaignViewsBlueprint->id()
     ->integer('campaign_id')
     ->string('ip_adress')
-    ->foreignKey('campaign_id', 'campaigns');
+    ->foreignKey('campaign_id', 'campaigns', 'id');
 
 
-    $creditHistoryBluePrint= new Blueprint('credit_History');
-    $creditHistoryBluePrint->id() 
+$creditHistoryBluePrint = new Blueprint('credit_History');
+$creditHistoryBluePrint->id()
     ->integer('store_id')
-    ->enum('process',['loading','update','spending'])
+    ->enum('process', ['loading', 'update', 'spending'])
     ->integer('credit_value')
     ->integer('before_procces_credit_value')
     ->integer('after_proccess_credit_value')
     ->json('credit_details')->integer('amount');
 
 
-    $campaingCategoriesBluePrint  = new Blueprint('campaing_categories');
-    $campaingCategoriesBluePrint->id()
-     -> integer('campaign_id')
-     ->string('category_name')
-     ->string('category_ikon')
-     ->string('category_image');
- 
-    
+$campaingCategoriesBluePrint = new Blueprint('campaing_categories');
+$campaingCategoriesBluePrint->id()
+    ->integer('campaign_id')
+    ->integer('campaign_store_category_id')
+    ->integer('campaign_sub_category_id')
+    ->integer('campaign_sub_sub_category_id')->default(0)
+;
+
+$storeCategoriesBlueprint = new Blueprint('store_categories');
+$storeCategoriesBlueprint->id()
+    ->string('category_name')
+    ->string('category_description')
+    ->string('category_image')
+    ->string('category_icon')
+    ->enum('status', ['active', 'inactive']);
+
+
+$campaingSubCategoriesBlueprint = new Blueprint('campaign_sub_categories');
+$campaingSubCategoriesBlueprint->id()
+    ->integer('store_categories_id')
+    ->string('sub_category_name')
+    ->string('sub_description', 255)
+    ->foreignKey('store_categories_id', 'store_categories', 'id');
+
+$campaign_sub_sub_categoriesBlueprint = new Blueprint('campaign_sub_sub_categories');
+$campaign_sub_sub_categoriesBlueprint->id()
+    ->integer('campaing_sub_category_id')
+    ->string('sub_sub_name', 255)
+    ->string('sub_sub_description', 255);
+
 // Migration'ları çalıştır
 $migrations = [
     $adminBlueprint->create() => "admin",
@@ -152,18 +172,20 @@ $migrations = [
     $phonesBlueprint->create() => "phones",
     $phoneVerifiedCodesBlueprint->create() => "phone_verified_codes",
     $campaignsStaticsBlueprint->create() => "campaigns_statics",
-    $storeCategoriesBlueprint->create() => "store_categories",
     $stockPhotosBlueprint->create() => "stock_photos",
     $campaignViewsBlueprint->create() => "campaign_views",
-    $creditHistoryBluePrint->create()=>"credit_details",
-    $campaingCategoriesBluePrint->create()=> "campaing_categories"
+    $creditHistoryBluePrint->create() => "credit_details",
+    $storeCategoriesBlueprint->create() => "store_categories",
+    $campaingCategoriesBluePrint->create() => "campaing_categories",
+    $campaingSubCategoriesBlueprint->create() => "campaign_sub_categories",
+    $campaign_sub_sub_categoriesBlueprint->create() => "campaign_sub_sub_categories"
 ];
 
 
 // Admin kullanıcısı oluştur
 
 try {
-    $say = 0 ; 
+    $say = 0;
     foreach ($migrations as $sql => $table) {
         $say++;
         echo "<div style='margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px;'>";
@@ -184,7 +206,7 @@ try {
     }
 
 
-echo $say  . " Tane Tablo Oluşturuldu . <br>";
+    echo $say . " Tane Tablo Oluşturuldu . <br>";
     echo "Tüm migration'lar başarıyla tamamlandı.\n";
 } catch (PDOException $e) {
     echo "Hata: " . $e->getMessage() . "\n";

@@ -140,33 +140,33 @@ $campaignStatus = [
 
                     foreach ($kampdata as $k) {
                         ?>
+                        <tr>
+                            <td><?= $k['store_id'] ?></td>
+                            <td><?= $k['campaign_title'] ?></td>
 
-                        <td><?= $k['store_id'] ?></td>
-                        <td><?= $k['campaign_title'] ?></td>
-
-                        <td><?= $k['campaign_start_time'] ?></td>
-                        <td><?= $k['campaign_end_time'] ?></td>
-                        <td><span
-                                class="status-badge <?= $campaignStatus[$k['campaign_status']][0] ?>"><?= $campaignStatus[$k['campaign_status']][1] ?></span>
-                        </td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn btn-icon"
-                                    onclick="window.location.href='<?= Helper::adminViewWithParams('campaign-details', 'id', $k['id']) ?>'">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-icon" onclick="deleteCampaign(1)">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
+                            <td><?= $k['campaign_start_time'] ?></td>
+                            <td><?= $k['campaign_end_time'] ?></td>
+                            <td>  
+                            <span
+                                    class="status-badge <?= $campaignStatus[$k['campaign_status']][0] ?>"><?= $campaignStatus[$k['campaign_status']][1] ?></span>
+                            </td>
+                            <td>
+                               
+                                <div class="action-buttons">
+                                    <button class="btn btn-icon" onclick="window.location.href='<?= Helper::adminViewWithParams('campaign-details', 'id', $k['id']) ?>'">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-icon" onclick="deleteCampaign(1)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
                         <?php
                     }
                 }
                 ?>
-                <tr>
 
-                </tr>
             </tbody>
         </table>
     </div>
@@ -216,10 +216,7 @@ $campaignStatus = [
 
 
 
-    // Arama işlevi
-    document.getElementById('campaignSearch').addEventListener('input', function (e) {
-        // Arama işlemi
-    });
+
 
     // Filtreleme işlevi
     document.querySelectorAll('.filter-buttons .btn').forEach(button => {

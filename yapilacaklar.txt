@@ -5,3 +5,6 @@ istatistikler 24 saatlik periyot ile cron joba eklenecek - kodlar hazır
  
 getstarted kısmında telefon onayı olacak , şifre güncellemesi olacak , 
 
+kampanya gününe göre kredi eksiltmesi
+
+onaylı mağaza modülü ile , mağazalara kampanyalarda önden satış garantisi vericek

@@ -28,5 +28,113 @@
         "campaign_id": "9",
         "created_at": "2025-05-07 16:18:04",
         "ip_address": "0.0.0.0"
+    },
+    {
+        "store_id": "28",
+        "campaign_id": "163",
+        "created_at": "2025-05-09 11:52:04",
+        "ip_address": "0.0.0.0"
+    },
+    {
+        "store_id": "1",
+        "campaign_id": "1",
+        "created_at": "2025-05-26 16:04:17",
+        "ip_address": "0.0.0.0"
+    },
+    {
+        "store_id": "1",
+        "campaign_id": "1",
+        "created_at": "2025-05-26 16:08:07",
+        "ip_address": "0.0.0.0"
+    },
+    {
+        "store_id": "1",
+        "campaign_id": "1",
+        "created_at": "2025-05-26 16:08:11",
+        "ip_address": "0.0.0.0"
+    },
+    {
+        "store_id": "1",
+        "campaign_id": "1",
+        "created_at": "2025-05-26 16:15:13",
+        "ip_address": "0.0.0.0"
+    },
+    {
+        "store_id": "1",
+        "campaign_id": "1",
+        "created_at": "2025-05-26 16:17:03",
+        "ip_address": "0.0.0.0"
+    },
+    {
+        "store_id": "1",
+        "campaign_id": "1",
+        "created_at": "2025-05-26 16:17:08",
+        "ip_address": "0.0.0.0"
+    },
+    {
+        "store_id": "1",
+        "campaign_id": "1",
+        "created_at": "2025-05-26 16:28:32",
+        "ip_address": "0.0.0.0"
+    },
+    {
+        "store_id": "1",
+        "campaign_id": "1",
+        "created_at": "2025-05-26 16:29:19",
+        "ip_address": "0.0.0.0"
+    },
+    {
+        "store_id": "1",
+        "campaign_id": "1",
+        "created_at": "2025-05-26 16:29:21",
+        "ip_address": "0.0.0.0"
+    },
+    {
+        "store_id": "1",
+        "campaign_id": "1",
+        "created_at": "2025-05-26 16:30:28",
+        "ip_address": "0.0.0.0"
+    },
+    {
+        "store_id": "1",
+        "campaign_id": "1",
+        "created_at": "2025-05-26 16:31:49",
+        "ip_address": "0.0.0.0"
+    },
+    {
+        "store_id": "1",
+        "campaign_id": "1",
+        "created_at": "2025-05-26 16:34:03",
+        "ip_address": "0.0.0.0"
+    },
+    {
+        "store_id": "1",
+        "campaign_id": "1",
+        "created_at": "2025-05-26 16:34:07",
+        "ip_address": "0.0.0.0"
+    },
+    {
+        "store_id": "1",
+        "campaign_id": "1",
+        "created_at": "2025-05-26 16:35:04",
+        "ip_address": "0.0.0.0"
+    },
+    {
+        "store_id": "1",
+        "campaign_id": "1",
+        "created_at": "2025-05-26 16:37:26",
+        "ip_address": "0.0.0.0"
+    },
+    {
+        "store_id": "1",
+        "campaign_id": "1",
+        "created_at": "2025-05-26 19:09:53",
+        "ip_address": "0.0.0.0"
+    },
+    {
+        "store_id": "1",
+        "campaign_id": "1",
+        "created_at": "2025-05-27 12:07:37",
+        "ip_address": "0.0.0.0"
     }
 ]

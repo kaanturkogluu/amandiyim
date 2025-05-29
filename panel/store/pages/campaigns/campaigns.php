@@ -136,12 +136,17 @@ $totalPages = $campaigns['total_pages'];
                         </td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn-icon" title="Düzenle" onclick="editCampaign(1)">
+                                <!-- <button class="btn-icon" title="Düzenle" onclick="editCampaign(1)">
                                     <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn-icon" title="Durdur" onclick="pauseCampaign(1)">
-                                    <i class="fas fa-pause"></i>
-                                </button>
+                                </button> -->
+                                <?php 
+                                if($campaign['campaign_status'] =='active'){
+?>   <button class="btn-icon" title="Durdur" onclick="pauseCampaign(<?= $campaign['id'] ?>)">
+<i class="fas fa-pause"></i>
+</button> <?php
+                                }
+                                ?>
+                             
                             </div>
                         </td>
                     </tr>
@@ -229,6 +234,33 @@ $totalPages = $campaigns['total_pages'];
 
     function pauseCampaign(id) {
         if (confirm('Bu kampanyayı durdurmak istediğinize emin misiniz?')) {
+            if (confirm('Kampanya İptal Edilmesi Durumunda Kredi İadesi Yapılmayacaktır')) {
+                fetch('<?=Helper::url()?>api/pauseCampaing.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        campaign_id: id,
+                        '_token': '<?= $csrf->getToken() ?>',
+                        'status': 'suspend'
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                      
+                        if (data.success) {
+                            alert('Kampanya başarıyla durduruldu');
+                            location.reload();
+                        } else {
+                            alert('Kampanya durdurulurken bir hata oluştu: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Hata:', error);
+                        alert('Bir hata oluştu. Lütfen tekrar deneyin.');
+                    });
+            }
             console.log('Kampanya durduruldu:', id);
         }
     }

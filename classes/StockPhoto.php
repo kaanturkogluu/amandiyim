@@ -7,15 +7,28 @@ class StockPhoto extends BaseModel
 
 
 
-    public function getStockPhotos($storeCategoryId)
+    public function getStockPhotos($subcategoryid, $subsubcategoryid = 0)
     {
-        $sql = "SELECT * FROM $this->table WHERE stock_photo_category = :cid";
+        $sql = "SELECT * FROM {$this->table} WHERE stock_photo_store_category = :storeCategory AND stock_photo_sub_category = :spsc";
+    
+        // Alt alt kategori varsa koşula ekle
+        if ($subsubcategoryid != 0) {
+            $sql .= " AND stock_photo_sub_sub_category = :subsub";
+        }
+    
         $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':cid', $storeCategoryId, PDO::PARAM_INT); // Limit değerini bağla
-
+    
+        // Parametreleri bağla
+        $stmt->bindParam(':storeCategory', $this->storeCategory, PDO::PARAM_INT);
+        $stmt->bindParam(':spsc', $subcategoryid, PDO::PARAM_INT);
+    
+        if ($subsubcategoryid != 0) {
+            $stmt->bindParam(':subsub', $subsubcategoryid, PDO::PARAM_INT);
+        }
+    
         $stmt->execute();
-        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return $data;
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    
 
 }

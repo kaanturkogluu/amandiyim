@@ -8,6 +8,7 @@ class BaseModel
     protected $db;
     protected $table; // her modelde bu tanımlanmalı
 
+    protected $storeCategory;
     protected $store_id;
     protected $itemsPerPage = 20;
 
@@ -17,6 +18,7 @@ class BaseModel
         $session = Session::getInstance();
         if ($session->isStore()) {
             $this->store_id = $_SESSION['user']['id'];
+            $this->storeCategory = $_SESSION['user']['store_category'] ?? 0;
         }
 
 
@@ -41,7 +43,7 @@ class BaseModel
         return $query->fetch(PDO::FETCH_ASSOC)['sayi'];
     }
 
-    public function getTotalPages($where="")
+    public function getTotalPages($where = "")
     {
 
         $totalItems = self::count($where);
@@ -60,17 +62,24 @@ class BaseModel
     }
 
     /**
-     * Kayıt ekle
+     * Kayıt ekle son idyi al
      */
     public function create($data)
     {
         $columns = implode(", ", array_keys($data));
         $placeholders = ":" . implode(", :", array_keys($data));
-
+    
         $sql = "INSERT INTO {$this->getTable()} ($columns) VALUES ($placeholders)";
         $query = $this->db->prepare($sql);
-        return $query->execute($data);
+        $success = $query->execute($data);
+    
+        if ($success) {
+            return $this->db->lastInsertId(); // Eklenen kaydın ID'si
+        }
+    
+        return false; // Eklenme başarısız
     }
+    
 
     /**
      * Kayıt güncelle
@@ -111,37 +120,49 @@ class BaseModel
     }
 
 
-    public function getLimitedData($limit, $offset = 0) {
+    public function getLimitedData($limit, $offset = 0)
+    {
         $sql = "SELECT * FROM {$this->table} WHERE store_id = :sid ORDER BY id DESC LIMIT :limit OFFSET :offset";
-    
+
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':sid', $this->store_id, PDO::PARAM_INT);
-        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
-        
+        $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int) $offset, PDO::PARAM_INT);
+
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    
-}
+    public function getSelectedColumns(array $columns, array $where = [])
+    {
 
-// $urun = new Urun();
-// $urun->create([
-//     'ad' => 'Bilgisayar',
-//     'fiyat' => 15000,
-//     'kategori_id' => 2
-// ]);
-// $urun = new Urun();
-// $urun->update(1, [
-//     'ad' => 'Yeni Bilgisayar',
-//     'fiyat' => 16000,
-//     'kategori_id' => 2
-// ]);
-// $urun = new Urun();
-// $urun->delete(1);  // ID 1 olan ürünü siler
-// $urun = new Urun();
-// $urunler = $urun->all();
-// print_r($urunler);
-// $urun = new Urun();
-// $tekUrun = $urun->find(1);
-// print_r($tekUrun);
+
+        // Sütunları güvenli şekilde virgülle ayır
+        $columnList = implode(", ", array_map(function ($col) {
+            return "`" . preg_replace('/[^a-zA-Z0-9_]/', '', $col) . "`";
+        }, $columns));
+
+        // WHERE koşulları için parçalar
+        $conditions = [];
+        $params = [];
+
+        foreach ($where as $key => $value) {
+            $cleanKey = preg_replace('/[^a-zA-Z0-9_]/', '', $key);
+            $conditions[] = "`$cleanKey` = :$cleanKey";
+            $params[$cleanKey] = $value;
+        }
+
+        // SQL cümlesi oluştur
+        $sql = "SELECT $columnList FROM `{$this->table}`";
+        if (!empty($conditions)) {
+            $sql .= " WHERE " . implode(" AND ", $conditions);
+        }
+
+        // Sorguyu hazırla ve çalıştır
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+
+        // Sonuçları döndür
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+}

@@ -26,12 +26,13 @@ class Campaigns extends BaseModel
     public function getAllCampaignsWithPage($page = 1, $limit = null)
     {
         $offset = ($page - 1) * $this->itemsPerPage;
-
+        
         // Sayfa numarasına göre verileri çek
         $sql = "SELECT * FROM " . $this->table . " WHERE store_id = :store_id  ORDER BY id DESC LIMIT :offset, :limit";
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':store_id', $this->store_id, PDO::PARAM_INT);
 
+       
         // Parametreleri bağla
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT); // Doğrudan sayısal değeri bağla
 

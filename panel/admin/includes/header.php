@@ -4,9 +4,11 @@ require_once __DIR__ . '/../../../classes/Session.php';
 require_once __DIR__ . '/../../../classes/CsrfToken.php';
 $helper = Helper::getInstance();
 $session = Session::getInstance();
-$csrf =CsrfToken::getInstance(); 
+$csrf = CsrfToken::getInstance();
 
-require_once __DIR__."/permission.php";
+define('classes', __DIR__ . "/../../../classes/");
+
+require_once __DIR__ . "/permission.php";
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -30,6 +32,7 @@ require_once __DIR__."/permission.php";
     $current_page = basename($_SERVER['PHP_SELF']);
 
 
+
     $page_css = [
         'reports.php' => 'reports.css',
         'settings.php' => 'settings.css'
@@ -51,7 +54,7 @@ require_once __DIR__."/permission.php";
             <span class="admin-logo">Amandiyim</span>
         </div>
         <div class="admin-profile">
-            <img src="<?=Helper::url()?>/panel/admin/assets/images/user.webp" alt="Admin Avatar">
+            <img src="<?= Helper::url() ?>/panel/admin/assets/images/user.webp" alt="Admin Avatar">
             <span>Admin</span>
             <div class="admin-dropdown">
                 <div class="admin-dropdown-menu">
@@ -64,7 +67,7 @@ require_once __DIR__."/permission.php";
                         Ayarlar
                     </a>
                     <div class="admin-divider"></div>
-                    <a href="<?=Helper::controller("LogoutController")?>" class="admin-dropdown-item">
+                    <a href="<?= Helper::controller("LogoutController") ?>" class="admin-dropdown-item">
                         <i class="fas fa-sign-out-alt"></i>
                         Çıkış Yap
                     </a>
@@ -81,30 +84,41 @@ require_once __DIR__."/permission.php";
         <div class="sidebar-logo">
         </div>
         <nav class="sidebar-nav">
-            <a href="<?=Helper::adminPanelView("anasayfa")?>" class="sidebar-nav-item <?php echo $current_page == 'index.php' ? 'active' : ''; ?>">
+            <a href="<?= Helper::adminPanelView("anasayfa") ?>"
+                class="sidebar-nav-item <?php echo $current_page == 'index.php' ? 'active' : ''; ?>">
                 <i class="fas fa-home"></i>
                 Ana Sayfa
             </a>
-            <a href="stores.php" class="sidebar-nav-item <?php echo $current_page == 'stores.php' ? 'active' : ''; ?>">
+            <a href="<?= Helper::adminPanelView('stores') ?>"
+                class="sidebar-nav-item <?php echo $current_page == 'stores.php' ? 'active' : ''; ?>">
                 <i class="fas fa-store"></i>
                 Mağazalar
             </a>
-            <a href="campaigns.php"
+            <a href="<?= Helper::adminPanelView('campaigns') ?>"
                 class="sidebar-nav-item <?php echo $current_page == 'campaigns.php' ? 'active' : ''; ?>">
                 <i class="fas fa-tags"></i>
                 Kampanyalar
+            </a> <a href="<?= Helper::adminPanelView('categories/categories') ?>"
+                class="sidebar-nav-item <?php echo $current_page == 'cartegories.php' ? 'active' : ''; ?>">
+                <i class="fas fa-users"></i>
+                Kategoriler
             </a>
-            <a href="users.php" class="sidebar-nav-item <?php echo $current_page == 'users.php' ? 'active' : ''; ?>">
+            <a href="<?= Helper::adminPanelView('users') ?>"
+                class="sidebar-nav-item <?php echo $current_page == 'users.php' ? 'active' : ''; ?>">
                 <i class="fas fa-users"></i>
                 Kullanıcılar
             </a>
-            <a href="reports.php"
+            <a href="<?= Helper::adminPanelView('reports') ?>"
                 class="sidebar-nav-item <?php echo $current_page == 'reports.php' ? 'active' : ''; ?>">
                 <i class="fas fa-chart-bar"></i>
                 Raporlar
+            </a> <a href="<?= Helper::adminPanelView('stock/photos') ?>"
+                class="sidebar-nav-item <?php echo $current_page == 'photos.php' ? 'active' : ''; ?>">
+                <i class="fas fa-chart-bar"></i>
+               Stok Fotolar
             </a>
             <div class="sidebar-divider"></div>
-            <a href="settings.php"
+            <a href="<?= Helper::adminPanelView('settings') ?>"
                 class="sidebar-nav-item <?php echo $current_page == 'settings.php' ? 'active' : ''; ?>">
                 <i class="fas fa-cog"></i>
                 Ayarlar

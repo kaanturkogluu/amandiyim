@@ -1,6 +1,7 @@
 <?php
-// Hata raporlamasını aç
- 
+// Hata raporlamasını kapat
+
+
 require_once __DIR__ . '/../classes/Campaigns.php';
 require_once __DIR__ . '/../classes/Session.php';
 require_once __DIR__ . '/../classes/CsrfToken.php';
@@ -36,7 +37,7 @@ try {
 
     // CSRF token kontrolü
     $csrf = CsrfToken::getInstance();
-    if (!isset($data['_token']) || !$csrf->validateToken($data['_token'])) {
+    if (!$csrf->validateToken($data['_token'] ?? '')) {
         sendResponse(false, 'Invalid security token', null, 400);
     }
 
@@ -47,9 +48,12 @@ try {
 
     // Session kontrolü
     $session = Session::getInstance();
-    if (!$session->isAdmin()) {
+
+    if (!$session->isStore()) {
+
         sendResponse(false, 'Unauthorized access', null, 401);
     }
+
 
 
     // Kampanya nesnesini oluştur
@@ -80,7 +84,7 @@ try {
     }
 
 } catch (Exception $e) {
-    sendResponse(false, 'Error: ' . $e->getMessage(), null, 500);
+    sendResponse(false, $e->getMessage(), null, 400);
 } catch (Error $e) {
-    sendResponse(false, 'Internal server error: ' . $e->getMessage(), null, 500);
+    sendResponse(false, 'Internal server error', null, 500);
 }
