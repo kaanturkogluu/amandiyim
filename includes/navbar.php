@@ -33,6 +33,7 @@ $csrf = CsrfToken::getInstance();
 </head>
 
 <body>
+
     <!-- Header & Navigation -->
     <div class="preloader">
         <!-- SVG kodu buraya -->

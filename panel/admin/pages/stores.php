@@ -209,12 +209,14 @@ $stores = $stores['data'];
                     </div>
                    
                     <div class="form-group">
-                        <label>Mağaza Logosu</label>
+                        <label>Mağaza Logosu (Opsiyonel)</label>
                         <input type="file" name="store_logo" accept="image/*">
+                        <small class="form-text text-muted">Mağaza logosu yüklemek zorunlu değildir.</small>
                     </div>
                     <div class="form-group">
-                        <label>Mağaza Ana Görseli</label>
+                        <label>Mağaza Ana Görseli (Opsiyonel)</label>
                         <input type="file" name="store_main_image" accept="image/*">
+                        <small class="form-text text-muted">Mağaza ana görseli yüklemek zorunlu değildir.</small>
                     </div>
                 </div>
 
@@ -340,14 +342,16 @@ $stores = $stores['data'];
                     </div>
                  
                     <div class="form-group">
-                        <label>Mağaza Logosu</label>
+                        <label>Mağaza Logosu (Opsiyonel)</label>
                         <input type="file" name="update_store_logo" accept="image/*">
                         <img height="100" src="" alt="" id="update_store_logo_preview">
+                        <small class="form-text text-muted">Mağaza logosu yüklemek zorunlu değildir.</small>
                     </div>
                     <div class="form-group">
-                        <label>Mağaza Ana Görseli</label>
+                        <label>Mağaza Ana Görseli (Opsiyonel)</label>
                         <input type="file" name="update_store_main_image" accept="image/*">
                         <img height="100" width="100" src="" alt="" id="update_store_main_image_preview">
+                        <small class="form-text text-muted">Mağaza ana görseli yüklemek zorunlu değildir.</small>
                     </div>
                 </div>
 

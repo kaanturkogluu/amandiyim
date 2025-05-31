@@ -27,7 +27,7 @@ $campaingStateColor = ['1' => 'active', '0' => 'pending', '2' => 'expired'];
 $credit = new Credits();
 $creditsdata = $credit->getLimitedData(10);
 
-
+ 
 
 $creditsStates = [
     'loading' => [
@@ -73,7 +73,7 @@ $creditsStates = [
             </div>
             <div class="stat-info">
                 <h3>Kalan Kredi</h3>
-                <p class="stat-value"><?= number_format($storeData['store_credits']) ?></p>
+                <p class="stat-value"><?= number_format($creditsdata[0]['credit_value']) ?></p>
                 <p class="stat-change">
                     <button class="btn btn-outline btn-sm" onclick="showCreditModal()">
                         <i class="fas fa-plus"></i> Kredi Yükle
@@ -104,9 +104,10 @@ $creditsStates = [
             <div class="stat-info">
                 <h3>Toplam Görüntülenme</h3>
                 <p class="stat-value"><?= number_format($magazaistatistik['total_view']) ?? 0 ?></p>
-                <!-- <p class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i> %15 artış
-                </p> -->
+                <p class="stat-change positive">
+                Son 24 Saat 
+                <!-- <i class="fas fa-arrow-up"></i> %15 artış -->
+                </p>
             </div>
         </div>
         <div class="stat-card">
@@ -116,9 +117,9 @@ $creditsStates = [
             <div class="stat-info">
                 <h3>Farklı Cihaz Görüntülenme</h3>
                 <p class="stat-value"><?= number_format($magazaistatistik['total_difrent_views']) ?? 0 ?></p>
-                <!-- <p class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i> %12 artış
-                </p> -->
+                <p class="stat-change positive">  Son 24 Saat 
+                    <!-- <i class="fas fa-arrow-up"></i> %12 artış -->
+                </p>
             </div>
         </div>
         <!-- <div class="stat-card">
@@ -231,7 +232,7 @@ $creditsStates = [
                                     <?= $creditsStates[$a['process']]['pointer'] ?>         <?= number_format($a['amount']) ?>
                                 </td>
                                 <td><?= number_format($a['credit_value']); ?></td>
-                                <td><?= json_decode($a['credit_details'], true)['description'] ?></td>
+                                <td><?= json_decode($a['credit_details'], true)['reason'] ?></td>
                             </tr>
                             <?php
 

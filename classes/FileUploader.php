@@ -2,7 +2,7 @@
 class FileUploader
 {
     private $baseUpload = __DIR__."/../uploads/";
-    const DEFAULT_ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif','image/webp'];
+    const DEFAULT_ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif','image/webp','image/jpg'];
     const DEFAULT_MAX_SIZE = 10 * 1024 * 1024; // 10 MB
     private $uploadDir;
     private $allowedTypes;
@@ -10,7 +10,7 @@ class FileUploader
 
     public function __construct() {
         $this->uploadDir = __DIR__ . '/../uploads/images/';
-        $this->allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        $this->allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp','image/jpg'];
         $this->maxFileSize = 5 * 1024 * 1024; // 5MB
     }
 

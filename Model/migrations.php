@@ -57,7 +57,8 @@ $campaignsBlueprint->id()
     ->string('campaign_min_purchase')
     ->integer('campaign_category')
     ->integer('isConfirmed')->default('0')
-    ->enum('campaign_type', ['discount', 'bogo', 'bundle','discount_amount'])->default('discount')
+    ->integer('campaing_credit_amount')->default('0')
+    ->enum('campaign_type', ['discount', 'bogo', 'bundle', 'discount_amount'])->default('discount')
     ->enum('campaign_status', ['expired', 'active', 'suspend', 'waiting'])->default('waiting')
     ->foreignKey('store_id', 'stores', 'id');
 
@@ -85,7 +86,15 @@ $customersBlueprint->id()
     ->timestamps();
 
 
-// Phones tablosu
+$creditProvisionBluePrint = new Blueprint('credit_provision');
+$creditProvisionBluePrint->id()
+    ->integer('amaount')
+    ->integer('store_id')
+    ->enum('proccess_statu', ['processed', 'waiting'])->default('waiting')
+    ->enum('proccess', ['spending_credit', 'upload_credit'])
+    ->json('description')
+    ->timestamps();
+// Phones tablosus
 $phonesBlueprint = new Blueprint('phones');
 $phonesBlueprint->id()
     ->integer('customer_id')
@@ -163,6 +172,18 @@ $campaign_sub_sub_categoriesBlueprint->id()
     ->string('sub_sub_name', 255)
     ->string('sub_sub_description', 255);
 
+
+$featuredCampaignsBluePrint = new Blueprint('featured_campaigns');
+$featuredCampaignsBluePrint->id()
+    ->integer('campaign_id')
+    ->integer('orderNumber')->default(1)
+    ->timestamp('featured_started_date')->default('CURRENT_TIMESTAMP')
+    ->timestamp('featured_ended_date')->default('CURRENT_TIMESTAMP')
+    ->timestamps();
+
+
+
+
 // Migration'ları çalıştır
 $migrations = [
     $adminBlueprint->create() => "admin",
@@ -178,7 +199,10 @@ $migrations = [
     $storeCategoriesBlueprint->create() => "store_categories",
     $campaingCategoriesBluePrint->create() => "campaing_categories",
     $campaingSubCategoriesBlueprint->create() => "campaign_sub_categories",
-    $campaign_sub_sub_categoriesBlueprint->create() => "campaign_sub_sub_categories"
+    $campaign_sub_sub_categoriesBlueprint->create() => "campaign_sub_sub_categories",
+    $creditProvisionBluePrint->create() => "credit_provision",
+    $featuredCampaignsBluePrint->create()=>"featured_campaigns"
+
 ];
 
 

@@ -27,7 +27,7 @@ $campaignType = [
     'bundle' => 'Paket İndirim',
     'discount_amount' => 'TL İndirim'
 ];
-$campaingprefix = ['discount' => '%', 'discount_amount' => 'TL']
+$campaingprefix = ['discount' => '%', 'discount_amount' => 'TL' ,'bogo'=>'', 'bundle'=>''];
     ?>
 
 

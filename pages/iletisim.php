@@ -306,3 +306,6 @@ function isActiveMenu($url) {
         }
     }
 </style>
+<?php 
+include __DIR__."/../includes/footer.php";
+?>

@@ -13,6 +13,16 @@ class Campaigns extends BaseModel
         $this->itemsPerPage = $val;
     }
 
+    public function getallactiveCampaing()
+    {
+        $sql = "SELECT c.id, c.campaign_title,s.store_name  
+        FROM {$this->table}  c INNER JOIN stores s ON c.store_id=s.id
+        WHERE c.campaign_status='active'    
+       ";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     public function getStoresAllCampaignIds()
     {
         $sql = "SELECT store_id, GROUP_CONCAT(id SEPARATOR ', ') AS campaignsIds
@@ -26,13 +36,13 @@ class Campaigns extends BaseModel
     public function getAllCampaignsWithPage($page = 1, $limit = null)
     {
         $offset = ($page - 1) * $this->itemsPerPage;
-        
+
         // Sayfa numarasına göre verileri çek
         $sql = "SELECT * FROM " . $this->table . " WHERE store_id = :store_id  ORDER BY id DESC LIMIT :offset, :limit";
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':store_id', $this->store_id, PDO::PARAM_INT);
 
-       
+
         // Parametreleri bağla
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT); // Doğrudan sayısal değeri bağla
 

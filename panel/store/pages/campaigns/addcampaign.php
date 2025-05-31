@@ -532,6 +532,118 @@ $errors = $session->getFlash('error');
         if (subCategorySelect && subCategorySelect.value) {
             loadSubSubCategories(subCategorySelect.value);
         }
+
+        const startDateInput = document.getElementById('campaign_start_date');
+        const endDateInput = document.getElementById('campaign_end_date');
+        const form = document.querySelector('form');
+
+        // Şu anki tarihi al ve formatla (dakikaları sıfırla)
+        const now = new Date();
+        now.setMinutes(0, 0, 0); // Dakikaları sıfırla
+        const currentDateTime = now.toISOString().slice(0, 16);
+
+        // Tarih karşılaştırma fonksiyonu
+        function compareDates(date1, date2) {
+            return new Date(date1).getTime() - new Date(date2).getTime();
+        }
+
+        // Başlangıç tarihi değiştiğinde
+        startDateInput.addEventListener('change', function() {
+            const startDate = new Date(this.value);
+            startDate.setMinutes(0, 0, 0); // Dakikaları sıfırla
+
+            // Başlangıç tarihi şu anki tarihten önce olamaz
+            if (startDate < now) {
+                this.value = currentDateTime;
+                alert('Başlangıç tarihi şu anki tarihten önce olamaz!');
+                return;
+            }
+
+            // Bitiş tarihi varsa kontrol et
+            if (endDateInput.value) {
+                const endDate = new Date(endDateInput.value);
+                endDate.setMinutes(0, 0, 0); // Dakikaları sıfırla
+
+                if (endDate < startDate) {
+                    endDateInput.value = this.value;
+                    alert('Bitiş tarihi başlangıç tarihinden önce olamaz!');
+                }
+            }
+        });
+
+        // Bitiş tarihi değiştiğinde
+        endDateInput.addEventListener('change', function() {
+            if (!startDateInput.value) {
+                alert('Lütfen önce başlangıç tarihini seçin!');
+                this.value = '';
+                return;
+            }
+
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(this.value);
+            startDate.setMinutes(0, 0, 0); // Dakikaları sıfırla
+            endDate.setMinutes(0, 0, 0); // Dakikaları sıfırla
+
+            if (endDate < startDate) {
+                this.value = startDateInput.value;
+                alert('Bitiş tarihi başlangıç tarihinden önce olamaz!');
+            }
+        });
+
+        // Form gönderilmeden önce kontrol
+        form.addEventListener('submit', function(e) {
+            if (!startDateInput.value || !endDateInput.value) {
+                e.preventDefault();
+                alert('Lütfen başlangıç ve bitiş tarihlerini seçin!');
+                return false;
+            }
+
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+            startDate.setMinutes(0, 0, 0); // Dakikaları sıfırla
+            endDate.setMinutes(0, 0, 0); // Dakikaları sıfırla
+
+            // Başlangıç tarihi kontrolü
+            if (startDate < now) {
+                e.preventDefault();
+                startDateInput.value = currentDateTime;
+                alert('Başlangıç tarihi şu anki tarihten önce olamaz!');
+                return false;
+            }
+
+            // Bitiş tarihi kontrolü
+            if (endDate < startDate) {
+                e.preventDefault();
+                endDateInput.value = startDateInput.value;
+                alert('Bitiş tarihi başlangıç tarihinden önce olamaz!');
+                return false;
+            }
+
+            // Tarihleri ISO formatına dönüştür
+            startDateInput.value = startDate.toISOString().slice(0, 16);
+            endDateInput.value = endDate.toISOString().slice(0, 16);
+        });
+
+        // Sayfa yüklendiğinde tarihleri kontrol et
+        if (startDateInput.value) {
+            const startDate = new Date(startDateInput.value);
+            startDate.setMinutes(0, 0, 0); // Dakikaları sıfırla
+
+            if (startDate < now) {
+                startDateInput.value = currentDateTime;
+            }
+        }
+
+        if (endDateInput.value && startDateInput.value) {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+            startDate.setMinutes(0, 0, 0); // Dakikaları sıfırla
+            endDate.setMinutes(0, 0, 0); // Dakikaları sıfırla
+
+            if (endDate < startDate) {
+                endDateInput.value = startDateInput.value;
+            }
+        }
     });
 
     function updateCharCounter(input, counterId) {

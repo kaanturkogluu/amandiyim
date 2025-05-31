@@ -1,9 +1,10 @@
 <?php
 // Hata raporlamasını aç
- 
+
 require_once __DIR__ . '/../classes/Campaigns.php';
 require_once __DIR__ . '/../classes/Session.php';
 require_once __DIR__ . '/../classes/CsrfToken.php';
+require_once __DIR__ . '/../classes/CreditProvision.php';
 
 // JSON yanıt için header ayarı
 header('Content-Type: application/json; charset=utf-8');
@@ -70,11 +71,32 @@ try {
 
     $result = $campaign->update($data['campaign_id'], $updateData);
 
+
     if ($result) {
-        sendResponse(true, 'Campaign status updated successfully', [
+        $provision = new CreditProvision();
+
+        $provisionId = $provision->findProvisionId($data['campaign_id']);
+        if ($provisionId) {
+
+            $update = $provision->update($provisionId['id'], ['proccess_statu' => 'processed']);
+
+            if ($update) {
+
+                sendResponse(true, 'Campaign status updated successfully', [
+                    'campaign_id' => $data['campaign_id'],
+                    'new_status' => $data['status']
+                ]);
+            }
+
+        }
+
+        sendResponse(true, 'Campaign status updated successfully but provision cant updated', [
             'campaign_id' => $data['campaign_id'],
             'new_status' => $data['status']
         ]);
+
+
+
     } else {
         sendResponse(false, 'Failed to update campaign status', null, 400);
     }

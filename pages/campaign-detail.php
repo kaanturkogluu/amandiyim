@@ -12,13 +12,13 @@ $campaingsViewObj = new CampaingsView();
 $storesObj = new Stores();
 // Görüntülenme sayısını artır
 
- 
+
 
 // Kampanya detaylarını getir
 $campaign = $campaignsObj->find($campaignId);
 $store = $storesObj->find($campaign['store_id']);
 
- 
+
 // Kampanya bulunamadıysa veya aktif değilse 404 sayfasına yönlendir
 
 
@@ -29,9 +29,17 @@ $store = $storesObj->find($campaign['store_id']);
 if (isset($campaignId) && $campaignId > 0) {
     $_SESSION['last_campaign_id'] = $campaignId; // 7 gün sakla
 }
+$campaignType = [
+    'discount' => 'İndirim',
+    'bogo' => 'Al Bir Bedava',
+    'bundle' => 'Paket İndirim',
+    'discount_amount' => 'TL İndirim'
+];
+$campaingprefix = ['discount' => '%', 'discount_amount' => ' TL', 'bogo' => '', 'bundle' => ''];
+
 ?>
 
- 
+
 <div class="campaign-detail-page">
     <!-- Kampanya Banner -->
     <div class="campaign-banner">
@@ -42,8 +50,8 @@ if (isset($campaignId) && $campaignId > 0) {
                 <div class="store-header">
                     <div class="store-header-content">
                         <div class="store-image">
-                            <img src="<?=Helper::upolads('images/store_images/').htmlspecialchars($store['store_main_image'])?>" height="150px"
-                                alt="<?= htmlspecialchars($store['store_name']) ?>">
+                            <img src="<?= Helper::upolads('images/store_images/') . htmlspecialchars($store['store_main_image']) ?>"
+                                height="150px" alt="<?= htmlspecialchars($store['store_name']) ?>">
                             <div class="store-badge">
                                 <i class="fas fa-check-circle"></i>
                                 <span>Onaylı Mağaza</span>
@@ -55,7 +63,7 @@ if (isset($campaignId) && $campaignId > 0) {
                                     <i class="fas fa-home"></i>
                                 </a>
                                 <span class="separator">/</span>
-                                <a href="/stores">Mağazalar</a>
+                                <a href="magazalar.php">Mağazalar</a>
                                 <span class="separator">/</span>
                                 <span class="current"><?= htmlspecialchars($store['store_name']) ?></span>
                             </nav>
@@ -150,7 +158,8 @@ if (isset($campaignId) && $campaignId > 0) {
             <div class="campaign-details">
                 <?php if ($campaign['campaign_disscount_off']): ?>
                     <div class="discount-badge">
-                        %<?= (int) $campaign['campaign_disscount_off'] ?> İndirim
+                        <?= (int) $campaign['campaign_disscount_off'] . $campaingprefix[$campaign['campaign_type']] ?>
+                        İndirim
                     </div>
                 <?php endif; ?>
 

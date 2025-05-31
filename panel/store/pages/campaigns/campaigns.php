@@ -1,9 +1,12 @@
 <?php
 require_once __DIR__ . '/../../includes/header.php';
 require_once __DIR__ . '/../../../../classes/Campaigns.php';
+require_once __DIR__ . '/../../../../classes/Credits.php';
 $errors = $session->getFlash('error');
 $success = $session->getFlash('success');
 $currentFilter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
+$credit = new Credits();
+$creditsdata = $credit->getLimitedData(1);
 
 if ($errors) {
     echo '<div class="alert alert-danger">' . $errors . '</div>';
@@ -80,7 +83,8 @@ $totalPages = $campaigns['total_pages'];
             <i class="fas fa-coins"></i>
             <div class="credit-details">
                 <h3>Kalan Kredi</h3>
-                <p class="credit-amount"><?= number_format($storeData['store_credits']) ?></p>
+                <p class="credit-amount"><?= number_format($creditsdata[0]['credit_value']) ?></p>
+               
             </div>
         </div>
         <button class="btn btn-outline" onclick="showCreditModal()">
@@ -117,6 +121,7 @@ $totalPages = $campaigns['total_pages'];
                     <th>Başlangıç</th>
                     <th>Bitiş</th>
 
+                    <th>Kredi Harcaması</th>
                     <th>Durum</th>
                     <th>İşlemler</th>
                 </tr>
@@ -131,6 +136,7 @@ $totalPages = $campaigns['total_pages'];
                         <td><?= $campaign['campaign_start_time'] ?></td>
                         <td><?= $campaign['campaign_end_time'] ?></td>
 
+                        <td> <?=$campaign['campaing_credit_amount']?></td>
                         <td><span
                                 class="status-badge <?= $campaingState[$campaign['campaign_status']][1] ?>"><?= $campaingState[$campaign['campaign_status']][0] ?></span>
                         </td>

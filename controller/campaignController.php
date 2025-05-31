@@ -7,12 +7,14 @@ require_once __DIR__ . '/../classes/CsrfToken.php';
 require_once __DIR__ . '/../classes/Helper.php';
 require_once __DIR__ . '/../classes/FileUploader.php';
 require_once __DIR__ . '/../classes/Categories.php';
+require_once __DIR__ . '/../classes/CreditProvision.php';
 $campaingCategoriesObj = new Categories();
 $helper = Helper::getInstance();
 $fileUploader = new FileUploader();
 $session = Session::getInstance();
 $csrfToken = CsrfToken::getInstance();
 $campaign = new Campaigns();
+$provision = new CreditProvision();
 // Yalnızca mağaza girişi yapılmışsa erişime izin ver
 if (!$session->isStore()) {
 
@@ -40,6 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'add':
 
 
+
+
             $campignsubid = Helper::post('campaing_sub_id');
             if (!is_numeric($campignsubid)) {
                 $session->flash('error', 'Kampanya Talebi oluşturulamadı! Veriler üzerinde Oynama Yapmayınız');
@@ -61,29 +65,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 $imgUrl = 'stock-' . $stockPhotoUrl;
 
-            } elseif (isset($_FILES['campaign_image']) && $_FILES['campaign_image']['error'] === UPLOAD_ERR_OK) {
+            } elseif (isset($_POST['temp_image_path'])) {
                 try {
-                    // Dosya türü kontrolü
-                    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-                    if (!in_array($_FILES['campaign_image']['type'], $allowedTypes)) {
-                        throw new Exception('Geçersiz dosya türü! Sadece JPEG, PNG, GIF ve WebP formatları desteklenmektedir.');
-                    }
 
-                    // Dosya boyutu kontrolü (5MB)
-                    if ($_FILES['campaign_image']['size'] > 5 * 1024 * 1024) {
-                        throw new Exception('Dosya boyutu çok büyük! Maksimum 5MB yükleyebilirsiniz.');
-                    }
 
-                    // Önce dosyayı yükle
-                    $uploadResult = $fileUploader->uploadPhoto($_FILES['campaign_image'], 'campaign_images');
-                    
-                    if (!is_string($uploadResult)) {
-                        throw new Exception('Görsel yüklenemedi: ' . $uploadResult);
+
+
+                    $temporaryPath = $_POST['temp_image_path'];
+
+
+
+                    if (!is_string($temporaryPath)) {
+                        throw new Exception('Görsel yüklenemedi: ' . $temporaryPath);
                     }
 
                     // Yüklenen dosyanın tam yolunu al
-                    $sourcePath = __DIR__ . '/../uploads/images/campaign_images/' . $uploadResult;
-                    $destinationPath = __DIR__ . '/../uploads/images/campaign_images/compressed_' . $uploadResult;
+                    $sourcePath = __DIR__ . '/../uploads/images/temporary_picture/' . $temporaryPath;
+                    $destinationPath = __DIR__ . '/../uploads/images/campaign_images/compressed_' . $temporaryPath;
 
                     // Dosyayı sıkıştır
                     $compressedResult = $fileUploader->compressImage($sourcePath, $destinationPath, 80);
@@ -94,10 +92,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             unlink($sourcePath);
                         }
                         // Sıkıştırılmış dosyanın adını al
-                        $imgUrl = 'upload-compressed_' . $uploadResult;
+                        $imgUrl = 'upload-compressed_' . $temporaryPath;
                     } else {
                         // Sıkıştırma başarısız olursa orijinal dosyayı kullan
-                        $imgUrl = 'upload-' . $uploadResult;
+                        $imgUrl = 'upload-' . $temporaryPath;
                     }
 
                 } catch (Exception $e) {
@@ -113,6 +111,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // 2. Kampanya koşullarını JSON'a çevir
             $jsonConditions = json_encode(Helper::post('conditions'));
+            $startDate = new DateTime(Helper::post('campaign_start_date'));
+            $endDate = new DateTime(Helper::post('campaign_end_date'));
+
+            // Toplam süreyi hesapla (saniye cinsinden)
+            $totalSeconds = $endDate->getTimestamp() - $startDate->getTimestamp();
+
+            // Toplam saati hesapla
+            $totalHours = ceil($totalSeconds / 3600); // Saniyeyi saate çevir ve yukarı yuvarla
+
+            // Minimum 2 saat kontrolü
+            $totalHours = max(2, $totalHours);
+
+            // Saatlik ücret (5 kredi)
+            $hourlyRate = 5;
+            $totalCost = $totalHours * $hourlyRate;
+
+
 
             // 3. Verileri oluştur
             $data = [
@@ -128,6 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'campaign_disscount_off' => Helper::post('campaign_discount'),
                 'campaign_min_purchase' => Helper::post('campaign_min_purchase'),
                 'campaign_conditions' => $jsonConditions,
+                'campaing_credit_amount' => $totalCost
             ];
             //kampayna kategorilerine göre kayıt yapıcaz
 
@@ -140,6 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($result) {
 
+               
                 $kategoriekleme = $campaingCategoriesObj->create([
                     'campaign_id' => $result,
                     'campaign_store_category_id' => $_SESSION['user']['store_category'],
@@ -154,38 +171,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             break;
 
-       case 'update_status':
-        if (!isset($_POST['id']) || !isset($_POST['status'])) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Eksik parametreler'
-            ]);
-            exit;
-        }
-
-        try {
-            $campaigns = new Campaigns();
-            $result = $campaigns->update($_POST['id'], ['campaing_status' => $_POST['status']]);
-
-            if ($result) {
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Kampanya durumu başarıyla güncellendi'
-                ]);
-            } else {
+        case 'update_status':
+            if (!isset($_POST['id']) || !isset($_POST['status'])) {
                 echo json_encode([
                     'success' => false,
-                    'message' => 'Kampanya durumu güncellenirken bir hata oluştu'
+                    'message' => 'Eksik parametreler'
+                ]);
+                exit;
+            }
+
+            try {
+                $campaigns = new Campaigns();
+                $result = $campaigns->update($_POST['id'], ['campaing_status' => $_POST['status']]);
+
+                if ($result) {
+                    echo json_encode([
+                        'success' => true,
+                        'message' => 'Kampanya durumu başarıyla güncellendi'
+                    ]);
+                } else {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Kampanya durumu güncellenirken bir hata oluştu'
+                    ]);
+                }
+            } catch (Exception $e) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Bir hata oluştu: ' . $e->getMessage()
                 ]);
             }
-        } catch (Exception $e) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Bir hata oluştu: ' . $e->getMessage()
-            ]);
-        }
-        break;
-        
+            break;
+
         default:
             $session->flash('error', 'Geçersiz işlem!');
             Helper::redirect('panel/store/pages/campaigns/list.php');

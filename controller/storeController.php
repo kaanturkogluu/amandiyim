@@ -39,31 +39,31 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             // Mağaza ekleme işlemi
             try {
                 // Gerekli alanları kontrol et
-
-
-                // Dosya yüklemeleri için kontrol
                 $storeData = $_POST;
-
                 unset($storeData['action']);
-
                 unset($storeData['_token']);
+                 
                 $password = $storeData['store_owner_password'];
                 $storeData['store_owner_password'] = password_hash($password, PASSWORD_DEFAULT);
-                $logoResult = $fileUploader->uploadPhoto($_FILES['store_logo'], 'stores_logos');
-                // Logo yükleme
-                $storeData['store_logo'] = $logoResult;
-                // Ana görsel yükleme
 
-                $imagePath = $fileUploader->uploadPhoto($_FILES['store_main_image'], 'store_images');
-                $storeData['store_main_image'] = $imagePath;
+                // Logo yükleme (opsiyonel)
+                if (isset($_FILES['store_logo']) && $_FILES['store_logo']['size'] > 0) {
+                    $logoResult = $fileUploader->uploadPhoto($_FILES['store_logo'], 'stores_logos');
+                    $storeData['store_logo'] = $logoResult;
+                } else {
+                    $storeData['store_logo'] = "store-default-icon.jpg";
+                }
 
-
-
+                // Ana görsel yükleme (opsiyonel)
+                if (isset($_FILES['store_main_image']) && $_FILES['store_main_image']['size'] > 0) {
+                    $imagePath = $fileUploader->uploadPhoto($_FILES['store_main_image'], 'store_images');
+                    $storeData['store_main_image'] = $imagePath;
+                } else {
+                    $storeData['store_main_image'] = "store-default-main-image.jpg";
+                }
 
                 // Mağaza ekle
                 $result = $stores->create($storeData);
-
-
 
                 if ($result) {
                     $response['success'] = true;

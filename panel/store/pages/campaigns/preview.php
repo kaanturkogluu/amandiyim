@@ -23,17 +23,62 @@ $campaign['details'] = filter_input(INPUT_POST, 'campaign_details', FILTER_SANIT
 // Kampanya koşulları
 $campaign['conditions'] = isset($_POST['conditions']) ? array_map('filter_var', $_POST['conditions']) : [];
 
-// Görsel işleme - Sadece geçici önizleme için
+// Görsel işleme - Geçici yükleme için
 $campaign['image'] = '';
+$tempImagePath = '';
+
+// Yeni resim yüklendiyse önce eski geçici resmi temizle
 if (isset($_FILES['campaign_image']) && $_FILES['campaign_image']['error'] === UPLOAD_ERR_OK) {
-    // Geçici dosyayı base64'e dönüştür
-    $imageData = file_get_contents($_FILES['campaign_image']['tmp_name']);
-    $base64Image = base64_encode($imageData);
-    $campaign['image'] = 'data:' . $_FILES['campaign_image']['type'] . ';base64,' . $base64Image;
+    // Eski geçici resmi temizle
+    if (isset($_SESSION['temp_image_path']) && !empty($_SESSION['temp_image_path'])) {
+        $oldTempPath = __DIR__ . "/../../../../uploads/images/temporary_picture/" . $_SESSION['temp_image_path'];
+        if (file_exists($oldTempPath)) {
+            unlink($oldTempPath);
+        }
+        unset($_SESSION['temp_image_path']);
+    }
+
+    // Yeni resmi yükle
+    $tempDir = __DIR__ . "/../../../../uploads/images/temporary_picture/";
+    $tempFileName = uniqid('temp_') . '_' . $_FILES['campaign_image']['name'];
+    $tempFilePath = $tempDir . $tempFileName;
+
+    // Geçici klasörü kontrol et ve oluştur
+    if (!file_exists($tempDir)) {
+        mkdir($tempDir, 0777, true);
+    }
+
+    // Dosyayı geçici konuma taşı
+    if (move_uploaded_file($_FILES['campaign_image']['tmp_name'], $tempFilePath)) {
+        $tempImagePath = $tempFileName;
+        $campaign['image'] = Helper::upolads('images/temporary_picture/') . $tempFileName;
+        $_SESSION['temp_image_path'] = $tempImagePath;
+    }
+}
+// Yeni resim yüklenmediyse ve session'da geçici resim varsa
+else if (isset($_SESSION['temp_image_path']) && !empty($_SESSION['temp_image_path'])) {
+    $tempImagePath = $_SESSION['temp_image_path'];
+    $tempFilePath = __DIR__ . "/../../../../uploads/images/temporary_picture/" . $tempImagePath;
+
+    // Geçici resim hala mevcutsa kullan
+    if (file_exists($tempFilePath)) {
+        $campaign['image'] = Helper::upolads('images/temporary_picture/') . $tempImagePath;
+    } else {
+        // Geçici resim silinmişse session'dan da temizle
+        unset($_SESSION['temp_image_path']);
+    }
 }
 
 // Stok fotoğraf kontrolü
 if (isset($_POST['selected_stock_photo']) && !empty($_POST['selected_stock_photo'])) {
+    // Eğer geçici resim varsa sil
+    if (!empty($tempImagePath)) {
+        $tempFilePath = __DIR__ . "/../../../../uploads/images/temporary_picture/" . $tempImagePath;
+        if (file_exists($tempFilePath)) {
+            unlink($tempFilePath);
+        }
+        unset($_SESSION['temp_image_path']);
+    }
     $campaign['image'] = Helper::upolads('images/stock_photos/') . $_POST['selected_stock_photo'];
 }
 
@@ -79,6 +124,28 @@ $_SESSION['campaign_form_data'] = $_POST;
 if (isset($_FILES['campaign_image'])) {
     $_SESSION['campaign_file_data'] = $_FILES['campaign_image'];
 }
+if (!empty($tempImagePath)) {
+    $_SESSION['temp_image_path'] = $tempImagePath;
+}
+
+// Kampanya süresi ve ücret hesaplama
+$startDate = new DateTime($campaign['start_date']);
+$endDate = new DateTime($campaign['end_date']);
+$duration = $startDate->diff($endDate);
+
+// Toplam saat hesaplama (dakika varsa yukarı yuvarlama)
+$totalHours = ($duration->days * 24) + $duration->h;
+if ($duration->i > 0) {
+    $totalHours += 1; // Dakika varsa bir saat ekle
+}
+
+// Minimum 2 saat kontrolü
+$totalHours = max(2, $totalHours);
+
+// Saatlik ücret (5 kredi)
+$hourlyRate = 5;
+$totalCost = $totalHours * $hourlyRate;
+
 $campaignType = [
     'discount' => 'İndirim',
     'bogo' => 'Al Bir Bedava',
@@ -96,6 +163,28 @@ $campaingprefix = ['discount' => '%', 'discount_amount' => 'TL'];
     <div class="preview-header">
         <h1>Kampanya Önizleme</h1>
         <p>Kampanyanızın nasıl görüneceğini kontrol edin</p>
+    </div>
+
+    <div class="campaign-cost-info">
+        <div class="cost-details">
+            <h3>Kampanya Ücret Bilgisi</h3>
+            <div class="cost-item">
+                <span>Kampanya Süresi:</span>
+                <span><?= $duration->days ?> gün, <?= $duration->h ?> saat, <?= $duration->i ?> dakika</span>
+            </div>
+            <div class="cost-item">
+                <span>Hesaplanan Saat:</span>
+                <span><?= $totalHours ?> saat</span>
+            </div>
+            <div class="cost-item">
+                <span>Saatlik Ücret:</span>
+                <span><?= $hourlyRate ?> kredi</span>
+            </div>
+            <div class="cost-item total">
+                <span>Toplam Ücret:</span>
+                <span><?= $totalCost ?> kredi</span>
+            </div>
+        </div>
     </div>
 
     <div class="preview-sections">
@@ -142,7 +231,7 @@ $campaingprefix = ['discount' => '%', 'discount_amount' => 'TL'];
                 <div class="campaign-details">
                     <?php if ($campaign['discount']): ?>
                         <div class="discount-badge">
-                            <?= (int) $campaign['discount'] ?>    <?= $campaingprefix[$campaign['type']] ?> İndirim
+                            <?= (int) $campaign['discount'] ?>     <?= $campaingprefix[$campaign['type']] ?> İndirim
                         </div>
                     <?php endif; ?>
 
@@ -198,12 +287,9 @@ $campaingprefix = ['discount' => '%', 'discount_amount' => 'TL'];
                 }
             }
 
-            // Dosya verilerini ekle
-            if (isset($_FILES['campaign_image'])) {
-                echo '<input type="hidden" name="file_name" value="' . htmlspecialchars($_FILES['campaign_image']['name']) . '">';
-                echo '<input type="hidden" name="file_type" value="' . htmlspecialchars($_FILES['campaign_image']['type']) . '">';
-                echo '<input type="hidden" name="file_size" value="' . htmlspecialchars($_FILES['campaign_image']['size']) . '">';
-                echo '<input type="hidden" name="file_tmp_name" value="' . htmlspecialchars($_FILES['campaign_image']['tmp_name']) . '">';
+            // Geçici resim bilgisini ekle
+            if (!empty($tempImagePath)) {
+                echo '<input type="hidden" name="temp_image_path" value="' . htmlspecialchars($tempImagePath) . '">';
             }
             ?>
             <button type="button" class="btn btn-secondary" onclick="history.back()">Düzenle</button>
@@ -448,6 +534,44 @@ $campaingprefix = ['discount' => '%', 'discount_amount' => 'TL'];
             grid-template-columns: 1fr;
         }
     }
+
+    .campaign-cost-info {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .cost-details h3 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 18px;
+    }
+
+    .cost-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .cost-item:last-child {
+        border-bottom: none;
+    }
+
+    .cost-item span:first-child {
+        color: #666;
+    }
+
+    .cost-item.total {
+        font-weight: bold;
+        color: #28a745;
+        font-size: 16px;
+        margin-top: 10px;
+        padding-top: 15px;
+        border-top: 2px solid #dee2e6;
+    }
 </style>
 
 <script>
@@ -474,6 +598,26 @@ $campaingprefix = ['discount' => '%', 'discount_amount' => 'TL'];
     // Her saniye timer'ı güncelle
     setInterval(updateTimer, 1000);
     updateTimer(); // İlk çalıştırma
+
+    // Sayfa yüklendiğinde geçici resim kontrolü
+    document.addEventListener('DOMContentLoaded', function () {
+        // Geri dön butonuna tıklandığında
+        document.querySelector('.btn-secondary').addEventListener('click', function () {
+            // AJAX ile geçici resmi sil
+            if ('<?= !empty($tempImagePath) ?>') {
+                fetch('<?= Helper::url('api/campaigns/delete_temp_image.php') ?>', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        temp_image_path: '<?= $tempImagePath ?>',
+                        _token: '<?= $csrf->getToken() ?>'
+                    })
+                });
+            }
+        });
+    });
 </script>
 
 <?php
